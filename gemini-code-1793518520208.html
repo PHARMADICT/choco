@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>VYSAKH SALES TRACKER</title>
+<style>
+    :root {
+        --bg: #f2f5fa;
+        --navy: #0a1931;
+        --navy-light: #162a4a;
+        --blue: #007aff;
+        --green: #20a766;
+        --red: #ff3b30;
+        --card: #ffffff;
+        --border: #e5ebf3;
+        --text: #1c2738;
+        --muted: #7f8ea3;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,sans-serif; -webkit-tap-highlight-color:transparent; }
+    body { background:var(--bg); min-height:100vh; padding:calc(0.75rem + env(safe-area-inset-top)) 0.65rem calc(8.5rem + env(safe-area-inset-bottom)); display:flex; flex-direction:column; align-items:center; color:var(--text); animation: fadeInBody 0.3s ease; }
+    @keyframes fadeInBody { from{opacity:0;} to{opacity:1;} }
+    .app { max-width:520px; width:100%; }
+
+    /* PIN LOCK OVERLAY */
+    .pin-overlay { position:fixed; inset:0; background:linear-gradient(160deg,#08152b 0%,#12284c 100%); z-index:2000; display:none; flex-direction:column; align-items:center; justify-content:center; padding:1.5rem; color:white; }
+    .pin-overlay.active { display:flex; animation: fadeInBody 0.2s ease; }
+    .pin-title { font-size:1.25rem; font-weight:800; letter-spacing:0.5px; margin-bottom:0.3rem; }
+    .pin-sub { font-size:0.78rem; opacity:0.75; margin-bottom:1.6rem; text-align:center; }
+    .pin-dots { display:flex; gap:0.9rem; margin-bottom:2.2rem; }
+    .pin-dot { width:15px; height:15px; border-radius:50%; border:2px solid rgba(255,255,255,0.45); transition:0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .pin-dot.filled { background:#4ade80; border-color:#4ade80; transform:scale(1.2); }
+    .pin-dot.error { background:var(--red); border-color:var(--red); animation:shake 0.3s; }
+    @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+    .pin-pad { display:grid; grid-template-columns:repeat(3, 74px); gap:1rem; }
+    .pin-key { width:74px; height:74px; border-radius:50%; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.08); color:white; font-size:1.55rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; user-select:none; backdrop-filter:blur(8px); transition:transform 0.1s, background 0.15s; }
+    .pin-key:active { background:rgba(255,255,255,0.28); transform:scale(0.92); }
+    .pin-key.action { font-size:0.85rem; font-weight:700; background:transparent; border-color:transparent; opacity:0.85; }
+
+    /* TOPBAR & DASHBOARD DATE BAR */
+    .topbar { background:linear-gradient(135deg,var(--navy),var(--navy-light)); color:white; border-radius:1.4rem; padding:0.85rem 1rem; margin-bottom:0.8rem; box-shadow:0 8px 20px rgba(10,25,49,0.22); transition:transform 0.2s; }
+    .topbar-row1 { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.65rem; }
+    .topbar h1 { font-size:1.1rem; font-weight:800; letter-spacing:-0.3px; display:flex; align-items:center; gap:0.4rem; }
+    .topbar h1 span { background:var(--green); font-size:0.62rem; padding:0.18rem 0.55rem; border-radius:20px; letter-spacing:0.5px; }
+    .lock-btn { background:rgba(255,255,255,0.14); border:none; color:white; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:0.9rem; display:flex; align-items:center; justify-content:center; transition:transform 0.15s; }
+    .lock-btn:active { transform:scale(0.9); }
+
+    .date-bar { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.12); border-radius:0.95rem; padding:0.35rem 0.5rem; gap:0.35rem; }
+    .date-nav-btn { background:rgba(255,255,255,0.16); border:none; color:white; width:30px; height:30px; border-radius:0.65rem; font-size:0.8rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform 0.1s; }
+    .date-nav-btn:active { background:rgba(255,255,255,0.3); transform:scale(0.92); }
+    .date-picker-wrap { flex:1; display:flex; align-items:center; justify-content:center; gap:0.35rem; position:relative; }
+    .date-input { background:transparent; border:none; color:white; font-size:0.82rem; font-weight:700; text-align:center; cursor:pointer; outline:none; color-scheme:dark; }
+    .today-jump-btn { background:var(--green); color:white; border:none; padding:0.28rem 0.6rem; border-radius:0.6rem; font-size:0.68rem; font-weight:800; cursor:pointer; display:none; transition:transform 0.15s; }
+    .today-jump-btn.show { display:inline-block; animation: popIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes popIn { from{transform:scale(0.8);opacity:0;} to{transform:scale(1);opacity:1;} }
+
+    /* DASHBOARD ICON TILES BAR */
+    .dashboard-tiles { display:flex; gap:0.5rem; overflow-x:auto; padding-bottom:0.4rem; margin-bottom:0.75rem; scrollbar-width:none; }
+    .dashboard-tiles::-webkit-scrollbar { display:none; }
+    .dash-tile { background:white; border:1.5px solid var(--border); border-radius:1rem; padding:0.45rem 0.55rem; min-width:76px; max-width:82px; display:flex; flex-direction:column; align-items:center; text-align:center; cursor:pointer; flex-shrink:0; box-shadow:0 3px 10px rgba(10,25,49,0.04); transition:transform 0.15s, border-color 0.15s, box-shadow 0.15s; }
+    .dash-tile:active { transform:scale(0.92); background:#f4f8fc; border-color:var(--blue); }
+    .dash-tile-img { width:38px; height:38px; border-radius:0.7rem; background:#edf3fc; display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:0.25rem; font-size:1.3rem; border:1px solid rgba(0,0,0,0.03); }
+    .dash-tile-img img { width:100%; height:100%; object-fit:cover; }
+    .dash-tile-name { font-size:0.62rem; font-weight:700; color:var(--text); line-height:1.15; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; width:100%; }
+
+    /* TABS */
+    .tabs { display:flex; background:#e1e8f2; border-radius:1.1rem; padding:0.25rem; margin-bottom:0.8rem; gap:0.2rem; }
+    .tab-btn { flex:1; padding:0.6rem 0.3rem; border:none; background:transparent; border-radius:0.9rem; font-size:0.8rem; font-weight:700; color:#4a5d75; cursor:pointer; transition:all 0.2s ease; }
+    .tab-btn.active { background:white; color:var(--navy); box-shadow:0 2px 8px rgba(10,25,49,0.1); transform:scale(1.01); }
+    .tab-btn:active { transform:scale(0.97); }
+
+    .panel { display:none; }
+    .panel.active { display:block; animation:fadeInPanel 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes fadeInPanel { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+    .card { background:var(--card); border-radius:1.4rem; padding:0.95rem; box-shadow:0 6px 18px rgba(10,25,49,0.06); margin-bottom:0.8rem; border:1px solid var(--border); transition:box-shadow 0.2s; }
+
+    /* SEARCH */
+    .search-wrap { display:flex; gap:0.4rem; margin-bottom:0.75rem; }
+    .search-wrap input[type=text] { flex:1; border:1.5px solid #d5e0ee; border-radius:0.85rem; padding:0.55rem 0.85rem; font-size:0.82rem; color:var(--text); background:#f8fafd; transition:border-color 0.2s, background 0.2s; }
+    .search-wrap input[type=text]:focus { outline:none; border-color:var(--blue); background:white; box-shadow:0 0 0 3px rgba(0,122,255,0.12); }
+    .filter-toggle { border:1.5px solid #d5e0ee; background:white; border-radius:0.85rem; padding:0.55rem 0.75rem; font-size:0.72rem; font-weight:800; color:#43648b; cursor:pointer; white-space:nowrap; transition:all 0.15s; }
+    .filter-toggle.on { background:var(--green); color:white; border-color:var(--green); }
+
+    /* PRODUCT WIDGET GRID (iPhone Optimized) */
+    .grid-products { display:grid; grid-template-columns:repeat(3, 1fr); gap:0.55rem; }
+    .product-tile { background:#f9fbff; border:1.5px solid #e1eaf5; border-radius:1.1rem; padding:0.45rem; cursor:pointer; transition:transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s, border-color 0.15s; display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; user-select:none; overflow:hidden; box-shadow:0 2px 6px rgba(10,25,49,0.04); }
+    .product-tile.promo { border-color:#74d3a3; background:#f4fbf7; }
+    .product-tile:active { transform:scale(0.92); background:#ebf3ff; border-color:var(--blue); }
+    .pimg-box { width:100%; aspect-ratio:1/1; border-radius:0.8rem; background:linear-gradient(135deg,#e8f0fe,#f3f7fc); display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:0.4rem; position:relative; border:1px solid rgba(0,0,0,0.03); }
+    .pimg-box img { width:100%; height:100%; object-fit:cover; display:block; }
+    .pimg-placeholder { font-size:1.85rem; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+    .product-tile .pname { font-size:0.71rem; font-weight:700; color:var(--text); line-height:1.2; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:1.72rem; margin-bottom:0.2rem; word-break:break-word; }
+    .product-tile .pprice { font-size:0.68rem; font-weight:800; color:var(--blue); background:rgba(0,122,255,0.09); padding:0.14rem 0.42rem; border-radius:10px; }
+    .product-tile .pbadge { position:absolute; top:0.35rem; right:0.35rem; font-size:0.5rem; font-weight:800; background:var(--green); color:white; padding:0.12rem 0.36rem; border-radius:20px; z-index:2; letter-spacing:0.3px; box-shadow:0 2px 5px rgba(0,0,0,0.15); }
+    .product-tile .qty-tap-badge { position:absolute; top:0.35rem; left:0.35rem; font-size:0.62rem; font-weight:800; background:var(--navy); color:white; min-width:20px; height:20px; padding:0 5px; border-radius:10px; display:flex; align-items:center; justify-content:center; z-index:2; box-shadow:0 2px 5px rgba(0,0,0,0.2); animation: popIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+    /* SALES LIST */
+    .sale-row { display:flex; align-items:center; gap:0.45rem; padding:0.55rem 0.1rem; border-bottom:1px solid #eef2f8; flex-wrap:wrap; animation: fadeInBody 0.2s ease; }
+    .sale-row:last-child { border-bottom:none; }
+    .sale-thumb { width:34px; height:34px; border-radius:0.55rem; background:#edf2f9; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+    .sale-thumb img { width:100%; height:100%; object-fit:cover; }
+    .sale-row .sname { flex:1; min-width:100px; font-size:0.77rem; font-weight:600; color:var(--text); line-height:1.25; }
+    .sale-row .sprice { font-size:0.74rem; font-weight:700; color:#2b3e5c; min-width:64px; text-align:right; }
+    .qty-ctrl { display:flex; align-items:center; gap:0.18rem; background:#eef3fa; border-radius:20px; padding:0.16rem; }
+    .qty-btn { width:1.75rem; height:1.75rem; border:none; background:white; border-radius:50%; font-weight:800; font-size:0.95rem; color:var(--blue); cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.08); transition:transform 0.1s, background 0.15s; }
+    .qty-btn:active { background:#dce6f5; transform:scale(0.9); }
+    .qty-input { width:2.1rem; border:none; background:transparent; text-align:center; font-size:0.8rem; font-weight:800; color:var(--text); outline:none; -moz-appearance:textfield; }
+    .qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+
+    .empty-msg { text-align:center; color:var(--muted); font-size:0.8rem; padding:1.1rem 0; }
+
+    /* STICKY SUMMARY & SUMMARY BOX */
+    .sticky-summary { position:fixed; bottom:0; left:0; right:0; background:rgba(10,25,49,0.96); backdrop-filter:blur(12px); color:white; padding:0.7rem 1rem calc(0.85rem + env(safe-area-inset-bottom)); box-shadow:0 -6px 22px rgba(10,25,49,0.3); z-index:50; display:none; animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
+    .sticky-summary.show { display:block; }
+    .sticky-inner { max-width:520px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:0.5rem; }
+    .sticky-summary .lbl, .summary-box .lbl { font-size:0.64rem; opacity:0.75; letter-spacing:0.4px; font-weight:600; }
+    .sticky-summary .val, .summary-box .val { font-size:1.1rem; font-weight:800; }
+    .sticky-summary .commission, .summary-box .commission { font-size:0.68rem; background:var(--green); padding:0.22rem 0.65rem; border-radius:20px; font-weight:800; }
+
+    .summary-box { background:linear-gradient(135deg,var(--navy),var(--navy-light)); color:white; border-radius:1.15rem; padding:0.85rem 1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; }
+
+    /* BUTTONS */
+    .btn { border:none; border-radius:0.95rem; padding:0.7rem 1rem; font-size:0.8rem; font-weight:700; cursor:pointer; transition:transform 0.12s, opacity 0.15s; display:inline-flex; align-items:center; justify-content:center; gap:0.4rem; }
+    .btn:active { transform:scale(0.96); }
+    .btn-primary { background:var(--blue); color:white; }
+    .btn-green { background:var(--green); color:white; }
+    .btn-outline { background:white; color:var(--text); border:1.5px solid #d0dae8; }
+    .btn-danger { background:var(--red); color:white; }
+    .btn-sm { padding:0.4rem 0.72rem; font-size:0.72rem; border-radius:0.75rem; }
+    .btn-block { width:100%; }
+
+    /* SETTINGS PRODUCT ITEM */
+    .setting-row { display:flex; align-items:center; gap:0.42rem; padding:0.6rem 0; border-bottom:1px solid #eef2f8; flex-wrap:wrap; }
+    .setting-row:last-child { border-bottom:none; }
+    .setting-img-btn { width:44px; height:44px; border-radius:0.75rem; border:1.5px dashed #b0c4de; background:#f5f9ff; cursor:pointer; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; position:relative; font-size:1.2rem; transition:transform 0.1s; }
+    .setting-img-btn:active { transform:scale(0.92); }
+    .setting-img-btn img { width:100%; height:100%; object-fit:cover; }
+    .setting-img-btn span { font-size:0.48rem; position:absolute; bottom:0; left:0; right:0; background:rgba(10,25,49,0.72); color:white; text-align:center; padding:1px 0; font-weight:700; }
+    .setting-row input[type=text], .setting-row input[type=number], .setting-row input[type=password] { border:1.5px solid #d8e2ef; border-radius:0.6rem; padding:0.42rem 0.55rem; font-size:0.78rem; color:var(--text); background:#f9fbfe; transition:border-color 0.2s; }
+    .setting-row input:focus { outline:none; border-color:var(--blue); background:white; box-shadow:0 0 0 3px rgba(0,122,255,0.12); }
+    .setting-row .inp-name { flex:2; min-width:110px; }
+    .setting-row .inp-price { width:70px; }
+    .setting-row .inp-pct { width:72px; }
+    .chk-label { display:flex; align-items:center; gap:0.25rem; font-size:0.72rem; font-weight:700; color:#43648b; white-space:nowrap; cursor:pointer; }
+
+    /* HISTORY */
+    .history-item { display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0.2rem; border-bottom:1px solid #eef2f8; font-size:0.78rem; flex-wrap:wrap; gap:0.3rem; cursor:pointer; transition:background 0.15s; }
+    .history-item:hover { background:#f7faff; }
+    .history-item:last-of-type { border-bottom:none; }
+    .history-date { font-weight:700; color:var(--navy); }
+    .history-total { font-weight:700; color:var(--blue); }
+    .history-comm { color:var(--green); font-weight:700; }
+    .history-chevron { font-size:0.68rem; color:var(--muted); margin-left:0.25rem; transition:transform 0.2s; }
+    .history-detail { padding:0.55rem 0.65rem 0.75rem; font-size:0.73rem; color:#43648b; line-height:1.6; background:#f7faff; border-radius:0.75rem; margin:0 0.1rem 0.5rem; display:none; border:1px solid #e3ebf6; animation: fadeInBody 0.2s ease; }
+    .history-detail.open { display:block; }
+    .history-detail .h-line { display:flex; justify-content:space-between; gap:0.5rem; padding:0.18rem 0; border-bottom:1px dashed #e2eaf5; }
+    .history-detail .h-line:last-of-type { border-bottom:none; }
+    .history-actions { display:flex; gap:0.45rem; margin-top:0.55rem; padding-top:0.45rem; border-top:1px solid #e2eaf5; }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:calc(5.8rem + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(80px); background:var(--navy); color:white; padding:0.65rem 1.25rem; border-radius:30px; font-size:0.78rem; font-weight:600; box-shadow:0 8px 24px rgba(10,25,49,0.32); transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s; z-index:999; opacity:0; pointer-events:none; display:flex; align-items:center; gap:0.6rem; white-space:nowrap; }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; pointer-events:auto; }
+    .toast button { background:var(--green); color:white; border:none; padding:0.28rem 0.65rem; border-radius:14px; font-size:0.7rem; font-weight:700; cursor:pointer; }
+
+    .small-note { font-size:0.68rem; color:var(--muted); margin-top:0.4rem; text-align:center; }
+
+    @media (max-width:350px) {
+        .grid-products { grid-template-columns:repeat(2, 1fr); }
+    }
+</style>
+</head>
+<body>
+
+<!-- PIN LOCK OVERLAY -->
+<div class="pin-overlay" id="pinOverlay">
+    <div style="font-size:2.2rem;margin-bottom:0.4rem;">🔒</div>
+    <div class="pin-title">VYSAKH TRACKER</div>
+    <div class="pin-sub" id="pinSubMsg">Enter 4-digit PIN to unlock</div>
+    <div class="pin-dots" id="pinDots">
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+    </div>
+    <div class="pin-pad">
+        <button class="pin-key" data-k="1">1</button>
+        <button class="pin-key" data-k="2">2</button>
+        <button class="pin-key" data-k="3">3</button>
+        <button class="pin-key" data-k="4">4</button>
+        <button class="pin-key" data-k="5">5</button>
+        <button class="pin-key" data-k="6">6</button>
+        <button class="pin-key" data-k="7">7</button>
+        <button class="pin-key" data-k="8">8</button>
+        <button class="pin-key" data-k="9">9</button>
+        <button class="pin-key action" data-k="clear">CLR</button>
+        <button class="pin-key" data-k="0">0</button>
+        <button class="pin-key action" data-k="del">⌫</button>
+    </div>
+</div>
+
+<div class="app">
+    <div class="topbar">
+        <div class="topbar-row1">
+            <h1>VYSAKH <span>SALES</span></h1>
+            <button class="lock-btn" id="lockNowBtn" title="Lock App">🔒</button>
+        </div>
+        <!-- DASHBOARD DATE CHANGER -->
+        <div class="date-bar">
+            <button class="date-nav-btn" id="prevDayBtn" title="Previous Day">◀</button>
+            <div class="date-picker-wrap">
+                <span>📅</span>
+                <input type="date" class="date-input" id="activeDatePicker">
+                <button class="today-jump-btn" id="jumpTodayBtn">Today</button>
+            </div>
+            <button class="date-nav-btn" id="nextDayBtn" title="Next Day">▶</button>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="sell">💊 Medicines</button>
+        <button class="tab-btn" data-tab="history">📅 History</button>
+        <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+    </div>
+
+    <!-- SELL / DASHBOARD TAB -->
+    <div class="panel active" id="panel-sell">
+        <!-- QUICK ICON TILES BAR -->
+        <div class="dashboard-tiles" id="dashboardTiles"></div>
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+                <div style="font-size:0.88rem;font-weight:800;color:var(--navy);">Tap medicine to add</div>
+                <div style="font-size:0.68rem;color:var(--muted);font-weight:600;" id="promoCount"></div>
+            </div>
+            <div class="search-wrap">
+                <input type="text" id="searchInput" placeholder="Search medicine…">
+                <button class="filter-toggle" id="promoFilterBtn">PROMO</button>
+            </div>
+            <div class="grid-products" id="productGrid"></div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;gap:0.4rem;flex-wrap:wrap;">
+                <div style="font-size:0.88rem;font-weight:800;color:var(--navy);" id="salesCardTitle">Sales for Today</div>
+                <div style="display:flex;gap:0.35rem;">
+                    <button class="btn btn-sm btn-outline" id="addCustomEntryBtn">+ Custom Entry</button>
+                    <button class="btn btn-sm btn-outline" id="clearDayBtn" style="color:var(--red);border-color:#ffd5d5;">Clear Date</button>
+                </div>
+            </div>
+            <div id="todayList">
+                <div class="empty-msg">No sales for this date — tap a medicine above.</div>
+            </div>
+            <div class="summary-box" style="margin-top:0.8rem;">
+                <div>
+                    <div class="lbl">TOTAL</div>
+                    <div class="val" id="todayTotal">0.00</div>
+                </div>
+                <div>
+                    <div class="lbl">AMT</div>
+                    <div class="val" id="todayCommission" style="color:#6ee7b7;">0.00</div>
+                </div>
+                <div class="commission" id="commissionPctBadge">10%</div>
+            </div>
+        </div>
+
+        <button class="btn btn-green btn-block" id="exportBtn">📸 Export Selected Date as Image</button>
+        <div class="small-note">Downloads a clean summary image for the selected date</div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div class="panel" id="panel-history">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+                <div style="font-size:0.88rem;font-weight:800;color:var(--navy);">📅 All Saved Dates (6 Months)</div>
+                <div style="font-size:0.68rem;color:var(--muted);">Tap a date to Edit or Delete</div>
+            </div>
+            <div id="historyList"></div>
+        </div>
+        <div class="card">
+            <div style="font-size:0.88rem;font-weight:800;color:var(--navy);margin-bottom:0.45rem;">📊 Last Sent Summary</div>
+            <div id="lastSentBox" style="font-size:0.78rem;color:#2b3e5c;line-height:1.65;">
+                <div>No details sent yet.</div>
+            </div>
+            <button class="btn btn-primary btn-block" style="margin-top:0.8rem;" id="markSentBtn">✅ Mark Selected Date as Sent to Doctor</button>
+        </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="panel" id="panel-settings">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                <div>
+                    <div style="font-size:0.88rem;font-weight:800;color:var(--navy);">⚙️ Medicines, Photos & AMT</div>
+                    <div style="font-size:0.66rem;color:var(--muted);">Tap the 📷 box to upload photo, or edit name & price</div>
+                </div>
+                <button class="btn btn-sm btn-primary" id="addProductBtn">+ Add Medicine</button>
+            </div>
+            <div id="settingsList"></div>
+            <div class="setting-row" style="border-top:2px solid #e9edf4;margin-top:0.5rem;padding-top:0.7rem;">
+                <label class="chk-label">Global AMT %</label>
+                <input type="number" id="globalCommission" class="inp-pct" min="0" max="100" step="0.5" value="10">
+                <span style="font-size:0.68rem;color:var(--muted);">applies to all non-promo items</span>
+            </div>
+        </div>
+
+        <!-- PIN SECURITY CARD -->
+        <div class="card">
+            <div style="font-size:0.88rem;font-weight:800;color:var(--navy);margin-bottom:0.5rem;">🔐 PIN Lock Security</div>
+            <div class="setting-row" style="border-bottom:none;padding:0.2rem 0;">
+                <label class="chk-label">
+                    <input type="checkbox" id="pinEnabledChk" checked> Enable 4-Digit PIN Lock
+                </label>
+                <div style="display:flex;align-items:center;gap:0.35rem;margin-left:auto;">
+                    <span style="font-size:0.72rem;color:var(--muted);font-weight:600;">PIN:</span>
+                    <input type="password" id="pinCodeInput" maxlength="4" pattern="[0-9]*" inputmode="numeric" placeholder="1234" style="width:74px;text-align:center;font-weight:800;letter-spacing:2px;">
+                    <button class="btn btn-sm btn-primary" id="savePinBtn">Save PIN</button>
+                </div>
+            </div>
+            <div class="small-note" style="text-align:left;margin-top:0.2rem;">Default PIN is 1234. Tap 🔒 in the top bar anytime to lock.</div>
+        </div>
+
+        <div class="card">
+            <div style="font-size:0.88rem;font-weight:800;color:var(--navy);margin-bottom:0.5rem;">💾 Data & Backup</div>
+            <button class="btn btn-outline btn-block" id="exportBackupBtn">⬇️ Download Full Backup (JSON)</button>
+            <button class="btn btn-outline btn-block" style="margin-top:0.5rem;" id="importBackupBtn">⬆️ Restore From Backup (JSON)</button>
+            <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;">
+            <input type="file" id="productImageInput" accept="image/*" style="display:none;">
+            <button class="btn btn-danger btn-block" style="margin-top:0.5rem;" id="resetAllBtn">🗑️ Reset All Data</button>
+            <div class="small-note">All medicine photos & sales are saved on this device.</div>
+        </div>
+    </div>
+</div>
+
+<!-- STICKY BOTTOM BAR -->
+<div class="sticky-summary" id="stickySummary">
+    <div class="sticky-inner">
+        <div>
+            <div class="lbl" id="stickyDateLbl">TOTAL</div>
+            <div class="val" id="stickyTotal">0.00</div>
+        </div>
+        <div>
+            <div class="lbl">AMT</div>
+            <div class="val" id="stickyCommission" style="color:#6ee7b7;">0.00</div>
+        </div>
+        <div class="commission" id="stickyPct">10%</div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<canvas id="exportCanvas" style="display:none;"></canvas>
+
+<script>
+(function(){
+    const DEFAULT_PRODUCTS = [
+        { id:'p1',  name:'White Health Magnesium Glycinate',         price:180.00, promo:false, img:'' },
+        { id:'p2',  name:'White Health Magnesium Glycinate (SALE)',   price:143.50, promo:true,  img:'' },
+        { id:'p3',  name:'White Health Probiotic Xtra',               price:298.00, promo:false, img:'' },
+        { id:'p4',  name:'White Health Slim Detox',                   price:189.00, promo:false, img:'' },
+        { id:'p5',  name:"White Health Slim D'tox",                   price:299.00, promo:false, img:'' },
+        { id:'p6',  name:'White Health Vita C 1000 Liposomal Complex', price:299.00, promo:false, img:'' },
+        { id:'p7',  name:'White Health CoQ10 200mg',                  price:299.00, promo:false, img:'' },
+        { id:'p8',  name:'KeeN Vita Multi Complete for Men',          price:299.00, promo:false, img:'' },
+        { id:'p9',  name:'KeeN Vita Multi Complete for Women',        price:299.00, promo:false, img:'' },
+        { id:'p10', name:'KeeN Vita Omega-3 Fish Oil 2000mg',         price:299.00, promo:false, img:'' },
+        { id:'p11', name:'KeenVita MovFlex Joint Care',               price:299.00, promo:false, img:'' }
+    ];
+
+    // STATE
+    let products = [];
+    let salesByDate = {}; 
+    let activeDateKey = '';
+    let lastSent = null;
+    let globalCommission = 10;
+    let pinEnabled = true;
+    let pinCode = '1234';
+    let enteredPin = '';
+    let searchQuery = '';
+    let promoOnly = false;
+    let lastDeleted = null;
+    let imgUploadTargetIdx = null;
+
+    const STORAGE_KEY = 'vysakh_sales_data_v3';
+    const LEGACY_KEY = 'vysakh_sales_data_v2';
+
+    // DOM REFS
+    const productGrid = document.getElementById('productGrid');
+    const dashboardTiles = document.getElementById('dashboardTiles');
+    const todayList = document.getElementById('todayList');
+    const todayTotalEl = document.getElementById('todayTotal');
+    const todayCommissionEl = document.getElementById('todayCommission');
+    const commissionPctBadge = document.getElementById('commissionPctBadge');
+    const activeDatePicker = document.getElementById('activeDatePicker');
+    const jumpTodayBtn = document.getElementById('jumpTodayBtn');
+    const salesCardTitle = document.getElementById('salesCardTitle');
+    const historyListEl = document.getElementById('historyList');
+    const lastSentBox = document.getElementById('lastSentBox');
+    const settingsListEl = document.getElementById('settingsList');
+    const toastEl = document.getElementById('toast');
+    const exportCanvas = document.getElementById('exportCanvas');
+    const promoCountEl = document.getElementById('promoCount');
+    const searchInput = document.getElementById('searchInput');
+    const promoFilterBtn = document.getElementById('promoFilterBtn');
+    const stickySummary = document.getElementById('stickySummary');
+    const stickyDateLbl = document.getElementById('stickyDateLbl');
+    const stickyTotal = document.getElementById('stickyTotal');
+    const stickyCommission = document.getElementById('stickyCommission');
+    const stickyPct = document.getElementById('stickyPct');
+    const globalCommissionInput = document.getElementById('globalCommission');
+    const importFileInput = document.getElementById('importFileInput');
+    const productImageInput = document.getElementById('productImageInput');
+    const pinOverlay = document.getElementById('pinOverlay');
+    const pinDots = document.getElementById('pinDots').querySelectorAll('.pin-dot');
+    const pinEnabledChk = document.getElementById('pinEnabledChk');
+    const pinCodeInput = document.getElementById('pinCodeInput');
+
+    // HELPERS
+    function todayKey() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+    function shiftDateKey(key, deltaDays) {
+        const [y,m,d] = key.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
+        dt.setDate(dt.getDate() + deltaDays);
+        return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+    }
+    function formatDateDisplay(key) {
+        if (!key) return '—';
+        const [y,m,d] = key.split('-');
+        return d + '/' + m + '/' + y;
+    }
+    function showToast(msg, undoFn) {
+        toastEl.innerHTML = '';
+        const span = document.createElement('span');
+        span.textContent = msg;
+        toastEl.appendChild(span);
+        if (undoFn) {
+            const btn = document.createElement('button');
+            btn.textContent = 'Undo';
+            btn.addEventListener('click', () => { undoFn(); toastEl.classList.remove('show'); });
+            toastEl.appendChild(btn);
+        }
+        toastEl.classList.add('show');
+        clearTimeout(toastEl._t);
+        toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 2800);
+    }
+    function uid() {
+        return 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    }
+    function escapeHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function getActiveSalesMap() {
+        if (!salesByDate[activeDateKey]) {
+            salesByDate[activeDateKey] = { salesMap: {}, sent: false };
+        }
+        return salesByDate[activeDateKey].salesMap;
+    }
+
+    function cleanupEmptyDates() {
+        for (const [k, obj] of Object.entries(salesByDate)) {
+            const hasQty = obj && obj.salesMap && Object.values(obj.salesMap).some(q => q > 0);
+            if (!hasQty && k !== activeDateKey) {
+                delete salesByDate[k];
+            }
+        }
+    }
+
+    // PERSISTENCE
+    function saveData() {
+        cleanupEmptyDates();
+        const data = { products, salesByDate, lastSent, globalCommission, pinEnabled, pinCode };
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+        catch(e) { showToast('Storage full! Try smaller photos.'); }
+    }
+
+    function loadData() {
+        activeDateKey = todayKey();
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const d = JSON.parse(raw);
+                products = d.products && d.products.length ? d.products : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+                salesByDate = d.salesByDate || {};
+                lastSent = d.lastSent || null;
+                globalCommission = d.globalCommission ?? 10;
+                pinEnabled = d.pinEnabled !== undefined ? d.pinEnabled : true;
+                pinCode = d.pinCode || '1234';
+                return;
+            }
+            const legacyRaw = localStorage.getItem(LEGACY_KEY);
+            if (legacyRaw) {
+                const d = JSON.parse(legacyRaw);
+                products = d.products && d.products.length ? d.products : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+                globalCommission = d.globalCommission ?? 10;
+                lastSent = d.lastSent || null;
+                salesByDate = {};
+                if (Array.isArray(d.history)) {
+                    d.history.forEach(h => {
+                        const map = {};
+                        (h.items || []).forEach(it => {
+                            let prod = products.find(p => p.name === it.name);
+                            if (!prod) {
+                                prod = { id: uid(), name: it.name, price: it.price || 0, promo: !!it.promo, img: '' };
+                                products.push(prod);
+                            }
+                            map[prod.id] = (map[prod.id] || 0) + it.qty;
+                        });
+                        salesByDate[h.date] = { salesMap: map, sent: !!h.sent };
+                    });
+                }
+                if (d.dateKey && d.todaySales && Object.keys(d.todaySales).length) {
+                    salesByDate[d.dateKey] = { salesMap: d.todaySales, sent: false };
+                }
+                saveData();
+                return;
+            }
+        } catch(e) { console.warn(e); }
+
+        products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+        salesByDate = {};
+        lastSent = null;
+        globalCommission = 10;
+        pinEnabled = true;
+        pinCode = '1234';
+    }
+
+    // PIN LOCK LOGIC
+    function initPinLock() {
+        pinEnabledChk.checked = pinEnabled;
+        pinCodeInput.value = pinCode;
+        if (pinEnabled) {
+            lockApp();
+        }
+    }
+    function lockApp() {
+        enteredPin = '';
+        updatePinDots();
+        pinOverlay.classList.add('active');
+    }
+    function updatePinDots(isError) {
+        pinDots.forEach((dot, i) => {
+            dot.classList.toggle('filled', i < enteredPin.length && !isError);
+            dot.classList.toggle('error', !!isError);
+        });
+    }
+    document.querySelectorAll('.pin-key').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const k = btn.dataset.k;
+            if (k === 'clear') { enteredPin = ''; updatePinDots(); return; }
+            if (k === 'del') { enteredPin = enteredPin.slice(0, -1); updatePinDots(); return; }
+            if (enteredPin.length < 4) {
+                enteredPin += k;
+                updatePinDots();
+                if (enteredPin.length === 4) {
+                    if (enteredPin === pinCode) {
+                        setTimeout(() => pinOverlay.classList.remove('active'), 120);
+                    } else {
+                        updatePinDots(true);
+                        setTimeout(() => { enteredPin = ''; updatePinDots(); }, 380);
+                    }
+                }
+            }
+        });
+    });
+    document.getElementById('lockNowBtn').addEventListener('click', lockApp);
+    pinEnabledChk.addEventListener('change', () => {
+        pinEnabled = pinEnabledChk.checked;
+        saveData();
+        showToast(pinEnabled ? 'PIN lock enabled' : 'PIN lock disabled');
+    });
+    document.getElementById('savePinBtn').addEventListener('click', () => {
+        const val = pinCodeInput.value.trim();
+        if (!/^\d{4}$/.test(val)) {
+            showToast('PIN must be 4 digits (e.g. 1234)');
+            return;
+        }
+        pinCode = val;
+        saveData();
+        showToast('PIN updated to ' + val);
+    });
+
+    // RENDER ALL
+    function renderAll() {
+        renderDateHeader();
+        renderDashboardTiles();
+        renderProducts();
+        renderTodayList();
+        renderSummary();
+        renderHistory();
+        renderLastSent();
+        renderSettings();
+        renderPromoCount();
+        globalCommissionInput.value = globalCommission;
+    }
+
+    function renderDateHeader() {
+        activeDatePicker.value = activeDateKey;
+        const isToday = activeDateKey === todayKey();
+        jumpTodayBtn.classList.toggle('show', !isToday);
+        salesCardTitle.textContent = isToday ? "Sales for Today" : "Sales for " + formatDateDisplay(activeDateKey);
+        stickyDateLbl.textContent = isToday ? "TOTAL (TODAY)" : "TOTAL (" + formatDateDisplay(activeDateKey) + ")";
+    }
+
+    function renderPromoCount() {
+        const promos = products.filter(p => p.promo).length;
+        promoCountEl.textContent = promos + ' promo item' + (promos !== 1 ? 's' : '');
+    }
+
+    function renderDashboardTiles() {
+        if (!products.length) {
+            dashboardTiles.innerHTML = '';
+            return;
+        }
+        // Show top 6 featured medicines as quick tiles
+        const tilesList = products.slice(0, 6);
+        dashboardTiles.innerHTML = tilesList.map(p => {
+            const media = p.img ? `<img src="${p.img}" alt="">` : '💊';
+            return `<div class="dash-tile" data-id="${p.id}" title="${escapeHtml(p.name)}">
+                <div class="dash-tile-img">${media}</div>
+                <div class="dash-tile-name">${escapeHtml(p.name)}</div>
+            </div>`;
+        }).join('');
+
+        dashboardTiles.querySelectorAll('.dash-tile').forEach(tile => {
+            tile.addEventListener('click', () => addSale(tile.dataset.id));
+        });
+    }
+
+    function renderProducts() {
+        let list = products;
+        if (searchQuery.trim()) {
+            const q = searchQuery.trim().toLowerCase();
+            list = list.filter(p => p.name.toLowerCase().includes(q));
+        }
+        if (promoOnly) list = list.filter(p => p.promo);
+        if (list.length === 0) {
+            productGrid.innerHTML = '<div class="empty-msg" style="grid-column:1/-1;">No medicines match.</div>';
+            return;
+        }
+        const salesMap = getActiveSalesMap();
+        productGrid.innerHTML = list.map(p => {
+            const badge = p.promo ? '<span class="pbadge">PROMO</span>' : '';
+            const qty = salesMap[p.id] || 0;
+            const qtyBadge = qty > 0 ? `<span class="qty-tap-badge">×${qty}</span>` : '';
+            const media = p.img
+                ? `<img src="${p.img}" alt="${escapeHtml(p.name)}">`
+                : `<span class="pimg-placeholder">💊</span>`;
+            return `<div class="product-tile${p.promo ? ' promo' : ''}" data-id="${p.id}">
+                ${qtyBadge}
+                ${badge}
+                <div class="pimg-box">${media}</div>
+                <div class="pname">${escapeHtml(p.name)}</div>
+                <div class="pprice">AED ${p.price.toFixed(2)}</div>
+            </div>`;
+        }).join('');
+        productGrid.querySelectorAll('.product-tile').forEach(el => {
+            el.addEventListener('click', () => addSale(el.dataset.id));
+        });
+    }
+
+    function addSale(pid) {
+        const prod = products.find(p => p.id === pid);
+        if (!prod) return;
+        const salesMap = getActiveSalesMap();
+        salesMap[pid] = (salesMap[pid] || 0) + 1;
+        saveData();
+        renderProducts();
+        renderTodayList();
+        renderSummary();
+        renderHistory();
+        showToast('+1 ' + prod.name.slice(0,26) + (prod.name.length>26?'…':''));
+    }
+
+    function changeQty(pid, delta) {
+        const salesMap = getActiveSalesMap();
+        if (!salesMap[pid]) return;
+        const newQty = salesMap[pid] + delta;
+        if (newQty <= 0) { removeItem(pid); return; }
+        salesMap[pid] = newQty;
+        saveData();
+        renderProducts();
+        renderTodayList();
+        renderSummary();
+        renderHistory();
+    }
+
+    function setExactQty(pid, val) {
+        const salesMap = getActiveSalesMap();
+        const n = parseInt(val, 10);
+        if (isNaN(n) || n <= 0) {
+            removeItem(pid);
+            return;
+        }
+        salesMap[pid] = n;
+        saveData();
+        renderProducts();
+        renderTodayList();
+        renderSummary();
+        renderHistory();
+    }
+
+    function removeItem(pid) {
+        const prod = products.find(p => p.id === pid);
+        const salesMap = getActiveSalesMap();
+        const qty = salesMap[pid] || 0;
+        if (!prod || qty <= 0) return;
+        const targetDate = activeDateKey;
+        delete salesMap[pid];
+        lastDeleted = { dateKey: targetDate, pid, qty };
+        saveData();
+        renderProducts();
+        renderTodayList();
+        renderSummary();
+        renderHistory();
+        showToast('Removed ' + prod.name.slice(0,22), () => {
+            if (lastDeleted) {
+                if (!salesByDate[lastDeleted.dateKey]) {
+                    salesByDate[lastDeleted.dateKey] = { salesMap: {}, sent: false };
+                }
+                salesByDate[lastDeleted.dateKey].salesMap[lastDeleted.pid] = lastDeleted.qty;
+                lastDeleted = null;
+                saveData();
+                renderAll();
+            }
+        });
+    }
+
+    function renderTodayList() {
+        const salesMap = getActiveSalesMap();
+        const entries = Object.entries(salesMap).filter(([pid, qty]) => qty > 0);
+        if (entries.length === 0) {
+            todayList.innerHTML = `<div class="empty-msg">No entries for ${formatDateDisplay(activeDateKey)} — tap a medicine above.</div>`;
+            return;
+        }
+        let html = '';
+        for (const [pid, qty] of entries) {
+            const prod = products.find(p => p.id === pid);
+            if (!prod) continue;
+            const lineTotal = (prod.price * qty).toFixed(2);
+            const thumb = prod.img ? `<img src="${prod.img}" alt="">` : '💊';
+            html += `<div class="sale-row">
+                <div class="sale-thumb">${thumb}</div>
+                <span class="sname">${escapeHtml(prod.name)}${prod.promo ? ' <span style="color:#20a766;font-weight:800;font-size:0.65rem;">[P]</span>' : ''}</span>
+                <div class="qty-ctrl">
+                    <button class="qty-btn" data-pid="${pid}" data-delta="-1">−</button>
+                    <input type="number" class="qty-input" data-pid="${pid}" value="${qty}" min="1">
+                    <button class="qty-btn" data-pid="${pid}" data-delta="1">+</button>
+                </div>
+                <span class="sprice">AED ${lineTotal}</span>
+                <button class="qty-btn" data-pid="${pid}" data-remove="1" style="background:#ffe8e8;color:#d33;" title="Remove item">✕</button>
+            </div>`;
+        }
+        todayList.innerHTML = html;
+        todayList.querySelectorAll('.qty-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const pid = btn.dataset.pid;
+                if (btn.dataset.remove) removeItem(pid);
+                else changeQty(pid, parseInt(btn.dataset.delta, 10));
+            });
+        });
+        todayList.querySelectorAll('.qty-input').forEach(inp => {
+            inp.addEventListener('change', () => setExactQty(inp.dataset.pid, inp.value));
+        });
+    }
+
+    function calcDateTotals(dateKey) {
+        const entry = salesByDate[dateKey];
+        if (!entry || !entry.salesMap) return { total: 0, commission: 0, count: 0 };
+        let total = 0, commission = 0, count = 0;
+        for (const [pid, qty] of Object.entries(entry.salesMap)) {
+            if (qty <= 0) continue;
+            const prod = products.find(p => p.id === pid);
+            if (!prod) continue;
+            const lineTotal = prod.price * qty;
+            total += lineTotal;
+            count++;
+            if (!prod.promo) commission += lineTotal * globalCommission / 100;
+        }
+        return { total: +total.toFixed(2), commission: +commission.toFixed(2), count };
+    }
+
+    function renderSummary() {
+        const { total, commission, count } = calcDateTotals(activeDateKey);
+        todayTotalEl.textContent = total.toFixed(2);
+        todayCommissionEl.textContent = commission.toFixed(2);
+        commissionPctBadge.textContent = globalCommission + '%';
+        stickyTotal.textContent = total.toFixed(2);
+        stickyCommission.textContent = commission.toFixed(2);
+        stickyPct.textContent = globalCommission + '%';
+        const onSell = document.getElementById('panel-sell').classList.contains('active');
+        stickySummary.classList.toggle('show', count > 0 && onSell);
+    }
+
+    function renderHistory() {
+        const cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth() - 6);
+        const cutoffStr = cutoff.getFullYear() + '-' + String(cutoff.getMonth()+1).padStart(2,'0') + '-' + String(cutoff.getDate()).padStart(2,'0');
+
+        const validDates = Object.keys(salesByDate)
+            .filter(d => d >= cutoffStr && calcDateTotals(d).count > 0)
+            .sort((a,b) => b.localeCompare(a));
+
+        if (validDates.length === 0) {
+            historyListEl.innerHTML = '<div class="empty-msg">No saved history yet.</div>';
+            return;
+        }
+
+        historyListEl.innerHTML = validDates.map((dKey, i) => {
+            const info = salesByDate[dKey];
+            const { total, commission, count } = calcDateTotals(dKey);
+            const sentMark = info.sent ? ' ✅' : '';
+            const detailLines = Object.entries(info.salesMap)
+                .filter(([pid, q]) => q > 0)
+                .map(([pid, q]) => {
+                    const prod = products.find(p => p.id === pid);
+                    if (!prod) return '';
+                    const promoTag = prod.promo ? ' <span style="color:#20a766;font-weight:700;">[P]</span>' : '';
+                    return `<div class="h-line">
+                        <span>${escapeHtml(prod.name)}${promoTag}</span>
+                        <span>×${q}</span>
+                        <span style="color:var(--blue);font-weight:700;">AED ${(prod.price * q).toFixed(2)}</span>
+                    </div>`;
+                }).join('');
+
+            return `<div class="history-item" data-hidx="${i}">
+                <span class="history-date">${formatDateDisplay(dKey)}${sentMark} <span class="history-chevron">▼</span></span>
+                <span>${count} item${count !== 1 ? 's' : ''}</span>
+                <span class="history-total">AED ${total.toFixed(2)}</span>
+                <span class="history-comm">AMT ${commission.toFixed(2)}</span>
+            </div>
+            <div class="history-detail" id="hdetail-${i}">
+                ${detailLines}
+                <div class="history-actions">
+                    <button class="btn btn-sm btn-primary edit-hist-btn" data-date="${dKey}" style="flex:1;">✏️ Edit Date on Dashboard</button>
+                    <button class="btn btn-sm btn-danger del-hist-btn" data-date="${dKey}">🗑️ Delete Date</button>
+                </div>
+            </div>`;
+        }).join('');
+
+        historyListEl.querySelectorAll('.history-item').forEach(row => {
+            row.addEventListener('click', () => {
+                const idx = row.dataset.hidx;
+                const detailEl = document.getElementById('hdetail-' + idx);
+                const chev = row.querySelector('.history-chevron');
+                if (detailEl) {
+                    const isOpen = detailEl.classList.toggle('open');
+                    if (chev) chev.textContent = isOpen ? '▲' : '▼';
+                }
+            });
+        });
+
+        historyListEl.querySelectorAll('.edit-hist-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                activeDateKey = btn.dataset.date;
+                renderAll();
+                document.querySelector('[data-tab="sell"]').click();
+                showToast('Editing ' + formatDateDisplay(activeDateKey));
+            });
+        });
+
+        historyListEl.querySelectorAll('.del-hist-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const dKey = btn.dataset.date;
+                if (confirm('Delete all entries for ' + formatDateDisplay(dKey) + '?')) {
+                    delete salesByDate[dKey];
+                    saveData();
+                    renderAll();
+                    showToast('Deleted ' + formatDateDisplay(dKey));
+                }
+            });
+        });
+    }
+
+    function renderLastSent() {
+        if (!lastSent) {
+            lastSentBox.innerHTML = '<div>No details sent yet.</div>';
+            return;
+        }
+        lastSentBox.innerHTML = `
+            <div><strong>Last sent date:</strong> ${formatDateDisplay(lastSent.date)}</div>
+            <div><strong>Total sales:</strong> AED ${lastSent.total.toFixed(2)}</div>
+            <div><strong>AMT (${lastSent.commissionPct ?? globalCommission}%):</strong> AED ${lastSent.commission.toFixed(2)}</div>
+            <div><strong>Items:</strong> ${lastSent.items.length} medicine${lastSent.items.length!==1?'s':''}</div>
+            <div style="margin-top:0.3rem;font-size:0.72rem;color:var(--muted);">${lastSent.items.map(i => escapeHtml(i.name) + ' ×' + i.qty).join('<br>')}</div>
+        `;
+    }
+
+    function renderSettings() {
+        if (!products.length) {
+            settingsListEl.innerHTML = '<div class="empty-msg">No medicines added yet.</div>';
+            return;
+        }
+        settingsListEl.innerHTML = products.map((p, idx) => {
+            const thumb = p.img ? `<img src="${p.img}" alt=""><span>EDIT</span>` : `📷<span>PHOTO</span>`;
+            return `<div class="setting-row" data-idx="${idx}">
+                <button type="button" class="setting-img-btn" title="Upload medicine photo">${thumb}</button>
+                <input type="text" class="inp-name" value="${escapeHtml(p.name)}" placeholder="Medicine name">
+                <input type="number" class="inp-price" value="${p.price}" step="0.5" min="0" placeholder="Price">
+                <label class="chk-label">
+                    <input type="checkbox" class="inp-promo" ${p.promo ? 'checked' : ''}> Promo
+                </label>
+                <button class="btn btn-sm btn-danger del-prod-btn" title="Delete medicine">✕</button>
+            </div>`;
+        }).join('');
+
+        settingsListEl.querySelectorAll('.setting-row').forEach(row => {
+            const idx = parseInt(row.dataset.idx, 10);
+            const imgBtn = row.querySelector('.setting-img-btn');
+            const nameInp = row.querySelector('.inp-name');
+            const priceInp = row.querySelector('.inp-price');
+            const promoChk = row.querySelector('.inp-promo');
+            const delBtn = row.querySelector('.del-prod-btn');
+
+            imgBtn.addEventListener('click', () => {
+                imgUploadTargetIdx = idx;
+                productImageInput.value = '';
+                productImageInput.click();
+            });
+            nameInp.addEventListener('change', () => {
+                products[idx].name = nameInp.value.trim() || 'Unnamed Medicine';
+                saveData();
+                renderProducts();
+                renderDashboardTiles();
+                renderTodayList();
+                renderHistory();
+            });
+            priceInp.addEventListener('change', () => {
+                products[idx].price = Math.max(0, parseFloat(priceInp.value) || 0);
+                saveData();
+                renderProducts();
+                renderTodayList();
+                renderSummary();
+                renderHistory();
+            });
+            promoChk.addEventListener('change', () => {
+                products[idx].promo = promoChk.checked;
+                saveData();
+                renderProducts();
+                renderTodayList();
+                renderSummary();
+                renderPromoCount();
+                renderHistory();
+            });
+            delBtn.addEventListener('click', () => {
+                if (!confirm('Remove "' + products[idx].name + '" from medicines list?')) return;
+                const removed = products.splice(idx, 1)[0];
+                if (removed) {
+                    for (const dObj of Object.values(salesByDate)) {
+                        if (dObj.salesMap) delete dObj.salesMap[removed.id];
+                    }
+                }
+                saveData();
+                renderAll();
+                showToast('Deleted ' + removed.name.slice(0, 20));
+            });
+        });
+    }
+
+    // IMAGE UPLOAD & COMPRESSION
+    productImageInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file || imgUploadTargetIdx === null) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const size = 200;
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, size, size);
+                const minSide = Math.min(img.width, img.height);
+                const sx = (img.width - minSide) / 2;
+                const sy = (img.height - minSide) / 2;
+                ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+                products[imgUploadTargetIdx].img = canvas.toDataURL('image/jpeg', 0.78);
+                saveData();
+                renderAll();
+                showToast('Medicine photo updated');
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // EXPORT IMAGE
+    function exportTodayImage() {
+        const salesMap = getActiveSalesMap();
+        const entries = Object.entries(salesMap).filter(([pid, qty]) => qty > 0);
+        if (entries.length === 0) {
+            showToast('No sales on this date to export');
+            return;
+        }
+        const items = [];
+        for (const [pid, qty] of entries) {
+            const prod = products.find(p => p.id === pid);
+            if (prod) items.push({ prod, qty, lineTotal: prod.price * qty });
+        }
+
+        const { total, commission } = calcDateTotals(activeDateKey);
+        const width = 640;
+        const rowHeight = 38;
+        const height = 220 + items.length * rowHeight;
+
+        exportCanvas.width = width;
+        exportCanvas.height = height;
+        const ctx = exportCanvas.getContext('2d');
+
+        ctx.fillStyle = '#f2f5fa';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.fillStyle = '#0a1931';
+        ctx.fillRect(20, 20, width - 40, 65);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 20px system-ui, sans-serif';
+        ctx.fillText('VYSAKH SALES SUMMARY', 40, 58);
+        ctx.font = 'bold 15px system-ui, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(formatDateDisplay(activeDateKey), width - 40, 58);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(20, 95, width - 40, items.length * rowHeight + 20);
+
+        ctx.textAlign = 'left';
+        let y = 122;
+        items.forEach((item, index) => {
+            ctx.fillStyle = '#1d3149';
+            ctx.font = '14px system-ui, sans-serif';
+            const tag = item.prod.promo ? ' [PROMO]' : '';
+            const title = item.prod.name.slice(0, 38) + (item.prod.name.length > 38 ? '…' : '') + tag;
+            ctx.fillText(`${index + 1}. ${title}`, 35, y);
+
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#43648b';
+            ctx.fillText(`×${item.qty}`, width - 140, y);
+            ctx.fillStyle = '#007aff';
+            ctx.font = 'bold 14px system-ui, sans-serif';
+            ctx.fillText(`AED ${item.lineTotal.toFixed(2)}`, width - 35, y);
+            ctx.textAlign = 'left';
+
+            y += rowHeight;
+        });
+
+        const footerY = 125 + items.length * rowHeight;
+        ctx.fillStyle = '#0a1931';
+        ctx.fillRect(20, footerY, width - 40, 65);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 16px system-ui, sans-serif';
+        ctx.fillText(`TOTAL: AED ${total.toFixed(2)}`, 40, footerY + 40);
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#6ee7b7';
+        ctx.fillText(`AMT (${globalCommission}%): AED ${commission.toFixed(2)}`, width - 40, footerY + 40);
+
+        const link = document.createElement('a');
+        link.download = `vysakh-sales-${activeDateKey}.png`;
+        link.href = exportCanvas.toDataURL('image/png');
+        link.click();
+        showToast('Summary image downloaded');
+    }
+
+    // DASHBOARD DATE CONTROLS
+    activeDatePicker.addEventListener('change', () => {
+        if (activeDatePicker.value) {
+            activeDateKey = activeDatePicker.value;
+            renderAll();
+        }
+    });
+    document.getElementById('prevDayBtn').addEventListener('click', () => {
+        activeDateKey = shiftDateKey(activeDateKey, -1);
+        renderAll();
+    });
+    document.getElementById('nextDayBtn').addEventListener('click', () => {
+        activeDateKey = shiftDateKey(activeDateKey, 1);
+        renderAll();
+    });
+    jumpTodayBtn.addEventListener('click', () => {
+        activeDateKey = todayKey();
+        renderAll();
+    });
+
+    // CUSTOM QUICK ENTRY
+    document.getElementById('addCustomEntryBtn').addEventListener('click', () => {
+        const name = prompt('Enter custom medicine / item name:');
+        if (!name || !name.trim()) return;
+        const priceStr = prompt('Enter price in AED:', '100');
+        const price = Math.max(0, parseFloat(priceStr) || 0);
+        const newProd = { id: uid(), name: name.trim(), price, promo: false, img: '' };
+        products.push(newProd);
+        const salesMap = getActiveSalesMap();
+        salesMap[newProd.id] = 1;
+        saveData();
+        renderAll();
+        showToast('Added ' + newProd.name);
+    });
+
+    // TABS
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+            renderSummary();
+        });
+    });
+
+    searchInput.addEventListener('input', () => {
+        searchQuery = searchInput.value;
+        renderProducts();
+    });
+
+    promoFilterBtn.addEventListener('click', () => {
+        promoOnly = !promoOnly;
+        promoFilterBtn.classList.toggle('on', promoOnly);
+        renderProducts();
+    });
+
+    document.getElementById('clearDayBtn').addEventListener('click', () => {
+        const salesMap = getActiveSalesMap();
+        if (Object.keys(salesMap).length === 0) return;
+        if (confirm('Clear all entries for ' + formatDateDisplay(activeDateKey) + '?')) {
+            salesByDate[activeDateKey] = { salesMap: {}, sent: false };
+            saveData();
+            renderAll();
+            showToast('Cleared ' + formatDateDisplay(activeDateKey));
+        }
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', exportTodayImage);
+
+    document.getElementById('markSentBtn').addEventListener('click', () => {
+        const salesMap = getActiveSalesMap();
+        const entries = Object.entries(salesMap).filter(([pid, qty]) => qty > 0);
+        if (entries.length === 0) {
+            showToast('No sales on ' + formatDateDisplay(activeDateKey) + ' to mark as sent');
+            return;
+        }
+        const items = [];
+        for (const [pid, qty] of entries) {
+            const prod = products.find(p => p.id === pid);
+            if (prod) items.push({ name: prod.name, qty, price: prod.price, promo: prod.promo });
+        }
+        const { total, commission } = calcDateTotals(activeDateKey);
+        lastSent = {
+            date: activeDateKey,
+            total,
+            commission,
+            commissionPct: globalCommission,
+            items
+        };
+        salesByDate[activeDateKey].sent = true;
+        saveData();
+        renderHistory();
+        renderLastSent();
+        showToast('Marked ' + formatDateDisplay(activeDateKey) + ' as sent');
+    });
+
+    document.getElementById('addProductBtn').addEventListener('click', () => {
+        products.push({ id: uid(), name: 'New Medicine', price: 100.00, promo: false, img: '' });
+        saveData();
+        renderAll();
+        showToast('Added new medicine row');
+    });
+
+    globalCommissionInput.addEventListener('change', () => {
+        globalCommission = Math.min(100, Math.max(0, parseFloat(globalCommissionInput.value) || 0));
+        globalCommissionInput.value = globalCommission;
+        saveData();
+        renderSummary();
+        renderHistory();
+        renderLastSent();
+    });
+
+    document.getElementById('exportBackupBtn').addEventListener('click', () => {
+        const data = { products, salesByDate, lastSent, globalCommission, pinEnabled, pinCode };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `vysakh-sales-backup-${activeDateKey}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Backup JSON downloaded');
+    });
+
+    document.getElementById('importBackupBtn').addEventListener('click', () => {
+        importFileInput.value = '';
+        importFileInput.click();
+    });
+
+    importFileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const d = JSON.parse(ev.target.result);
+                if (!d || typeof d !== 'object' || !Array.isArray(d.products)) {
+                    showToast('Invalid backup file');
+                    return;
+                }
+                products = d.products.length ? d.products : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+                salesByDate = d.salesByDate || {};
+                lastSent = d.lastSent || null;
+                globalCommission = d.globalCommission ?? 10;
+                if (d.pinCode) pinCode = d.pinCode;
+                if (d.pinEnabled !== undefined) pinEnabled = d.pinEnabled;
+                saveData();
+                renderAll();
+                showToast('Backup restored');
+            } catch (err) {
+                showToast('Failed to read backup file');
+            }
+        };
+        reader.readAsText(file);
+    });
+
+    document.getElementById('resetAllBtn').addEventListener('click', () => {
+        if (confirm('Delete all sales history and reset medicines to default? This cannot be undone.')) {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(LEGACY_KEY);
+            loadData();
+            renderAll();
+            showToast('All data reset');
+        }
+    });
+
+    // INIT
+    loadData();
+    initPinLock();
+    renderAll();
+})();
+</script>
+</body>
+</html>
