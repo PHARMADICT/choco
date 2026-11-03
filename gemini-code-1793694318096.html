@@ -48,6 +48,17 @@
     .modal-group label { font-size:0.72rem; font-weight:700; color:#43648b; display:block; margin-bottom:0.25rem; }
     .modal-group input, .modal-group textarea, .modal-group select { width:100%; border:1.5px solid #d8e2ef; border-radius:0.75rem; padding:0.5rem 0.75rem; font-size:0.85rem; color:var(--text); background:#f9fbfe; outline:none; font-weight:600; }
     .modal-group input:focus, .modal-group textarea:focus, .modal-group select:focus { border-color:var(--blue); background:white; box-shadow:0 0 0 3px rgba(0,122,255,0.12); }
+    .modal-group input, .modal-group textarea, .modal-group select { min-height:42px; font-size:0.92rem; }
+    .modal-group label { font-size:0.76rem; }
+    .modal-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:0.55rem; }
+    .qty-control { display:flex; align-items:center; gap:0.35rem; }
+    .qty-control input { flex:1; min-width:0; text-align:center; }
+    .qty-step { min-width:42px; height:42px; border:1px solid #cbd8e8; border-radius:0.7rem; background:#edf3fc; color:var(--navy); font-size:1.25rem; font-weight:900; cursor:pointer; }
+    .qty-step:active { transform:scale(0.94); background:#dceaff; }
+    .catalog-sync { display:flex; align-items:flex-start; gap:0.5rem; padding:0.65rem; background:#eef8f2; border:1px solid #c8ead6; border-radius:0.75rem; color:#226b45; font-size:0.74rem; font-weight:750; line-height:1.45; }
+    .catalog-sync input { width:18px; height:18px; flex-shrink:0; margin-top:1px; }
+    .reorder-controls { display:flex; gap:0.45rem; margin:0.65rem 0 0; }
+    .reorder-controls button { flex:1; }
 
     /* LOCATION SELECTOR BAR */
     .loc-bar { display:flex; gap:0.4rem; background:white; padding:0.35rem; border-radius:0.8rem; border:1px solid var(--border); margin-bottom:0.8rem; }
@@ -71,8 +82,9 @@
     /* DASHBOARD ICON TILES BAR */
     .dashboard-tiles { display:flex; gap:0.5rem; overflow-x:auto; padding-bottom:0.4rem; margin-bottom:0.4rem; scrollbar-width:none; }
     .dashboard-tiles::-webkit-scrollbar { display:none; }
-    .dash-tile { background:white; border:1.5px solid var(--border); border-radius:1rem; padding:0.45rem 0.55rem; min-width:76px; max-width:82px; display:flex; flex-direction:column; align-items:center; text-align:center; cursor:pointer; flex-shrink:0; box-shadow:0 3px 10px rgba(10,25,49,0.04); }
-    .dash-tile:active { transform:scale(0.92); background:#f4f8fc; border-color:var(--blue); }
+    .dash-tile { appearance:none; background:white; border:1.5px solid var(--border); border-radius:1rem; padding:0.45rem 0.55rem; min-width:76px; max-width:82px; display:flex; flex-direction:column; align-items:center; text-align:center; cursor:pointer; flex-shrink:0; box-shadow:0 3px 10px rgba(10,25,49,0.04); }
+    .dash-tile:active { transform:scale(0.96); background:#f4f8fc; border-color:var(--blue); }
+    .dash-tile, .product-tile, .btn, .nav-tab-btn, .loc-tab { touch-action:manipulation; }
     .dash-tile-img { width:38px; height:38px; border-radius:0.7rem; background:#edf3fc; display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:0.25rem; font-size:1.3rem; border:1px solid rgba(0,0,0,0.03); }
     .dash-tile-img img { width:100%; height:100%; object-fit:cover; }
     .dash-tile-name { font-size:0.62rem; font-weight:700; color:var(--text); line-height:1.15; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; width:100%; }
@@ -99,7 +111,7 @@
 
     /* PRODUCT GRID */
     .grid-products { display:grid; grid-template-columns:repeat(3, 1fr); gap:0.55rem; }
-    .product-tile { background:#f9fbff; border:1.5px solid #e1eaf5; border-radius:1.1rem; padding:0.45rem; cursor:pointer; transition:transform 0.12s, background 0.15s; display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; user-select:none; overflow:hidden; box-shadow:0 2px 6px rgba(10,25,49,0.04); }
+    .product-tile { appearance:none; width:100%; font-family:inherit; background:#f9fbff; border:1.5px solid #e1eaf5; border-radius:1.1rem; padding:0.6rem; min-height:178px; cursor:pointer; transition:transform 0.12s, background 0.15s; display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; user-select:none; overflow:hidden; box-shadow:0 2px 6px rgba(10,25,49,0.04); touch-action:manipulation; }
     .product-tile.promo { border-color:#74d3a3; background:#f4fbf7; }
     .product-tile:active { transform:scale(0.90); background:#d8e8fc; border-color:var(--blue); }
     .product-tile.pulse-anim { animation: tilePulse 0.35s ease; }
@@ -107,8 +119,9 @@
 
     .pimg-box { width:100%; aspect-ratio:1/1; border-radius:0.8rem; background:linear-gradient(135deg,#e8f0fe,#f3f7fc); display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:0.4rem; position:relative; border:1px solid rgba(0,0,0,0.03); }
     .pimg-box img { width:100%; height:100%; object-fit:cover; display:block; }
-    .product-tile .pname { font-size:0.71rem; font-weight:800; color:var(--text); line-height:1.2; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:1.72rem; margin-bottom:0.2rem; }
-    .product-tile .pprice { font-size:0.68rem; font-weight:900; color:var(--blue); background:rgba(0,122,255,0.09); padding:0.14rem 0.42rem; border-radius:10px; }
+    .product-tile .pname { font-size:0.82rem; font-weight:850; color:var(--text); line-height:1.3; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; min-height:3.15rem; margin-bottom:0.35rem; overflow-wrap:anywhere; }
+    .product-tile .pprice { font-size:0.78rem; font-weight:900; color:var(--blue); background:rgba(0,122,255,0.09); padding:0.24rem 0.55rem; border-radius:10px; margin-top:auto; }
+    .product-tile .tap-hint { color:var(--muted); font-size:0.62rem; font-weight:800; margin-top:0.28rem; }
     .product-tile .pbadge { position:absolute; top:0.35rem; right:0.35rem; font-size:0.5rem; font-weight:800; background:var(--green); color:white; padding:0.12rem 0.36rem; border-radius:20px; z-index:2; }
     .product-tile .qty-tap-badge { position:absolute; top:0.35rem; left:0.35rem; font-size:0.62rem; font-weight:900; background:var(--navy); color:white; min-width:20px; height:20px; padding:0 5px; border-radius:10px; display:flex; align-items:center; justify-content:center; z-index:2; }
 
@@ -149,14 +162,17 @@
     .setting-img-btn { width:44px; height:44px; border-radius:0.75rem; border:1.5px dashed #b0c4de; background:#f5f9ff; cursor:pointer; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; position:relative; font-size:0.85rem; font-weight:900; color:#839bb9; }
     .setting-img-btn img { width:100%; height:100%; object-fit:cover; }
     .setting-img-btn span.edit-lbl { font-size:0.48rem; position:absolute; bottom:0; left:0; right:0; background:rgba(10,25,49,0.72); color:white; text-align:center; padding:1px 0; font-weight:800; }
-    .setting-row input[type=text], .setting-row input[type=number], .setting-row input[type=password] { border:1.5px solid #d8e2ef; border-radius:0.6rem; padding:0.42rem 0.55rem; font-size:0.78rem; color:var(--text); background:#f9fbfe; font-weight:700; }
-    .setting-row .inp-name { flex:2; min-width:110px; }
-    .setting-row .inp-price { width:70px; }
+    .setting-row input[type=text], .setting-row input[type=number], .setting-row input[type=password] { border:1.5px solid #d8e2ef; border-radius:0.6rem; padding:0.55rem 0.65rem; font-size:0.84rem; color:var(--text); background:#f9fbfe; font-weight:700; min-height:40px; }
+    .setting-row .inp-name { width:100%; min-width:0; }
+    .setting-row .inp-brand { width:100%; min-width:0; }
+    .setting-row .inp-price { width:92px; }
+    .setting-fields { flex:1; min-width:0; display:flex; flex-direction:column; gap:0.4rem; }
+    .setting-bottom { display:flex; align-items:center; gap:0.45rem; flex-wrap:wrap; }
     .setting-row .inp-pct { width:72px; }
     .chk-label { display:flex; align-items:center; gap:0.25rem; font-size:0.72rem; font-weight:800; color:#43648b; white-space:nowrap; cursor:pointer; }
 
     /* HISTORY */
-    .history-item { display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0.2rem; border-bottom:1px solid #eef2f8; font-size:0.78rem; flex-wrap:wrap; gap:0.3rem; cursor:pointer; }
+    .history-item { appearance:none; width:100%; font-family:inherit; color:inherit; background:transparent; display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0.2rem; border:0; border-bottom:1px solid #eef2f8; font-size:0.78rem; flex-wrap:wrap; gap:0.3rem; cursor:pointer; text-align:left; }
     .history-date { font-weight:800; color:var(--navy); }
     .history-total { font-weight:900; color:var(--blue); }
     .history-comm { color:var(--green); font-weight:800; }
@@ -168,7 +184,27 @@
     /* TOAST */
     .toast { position:fixed; bottom:calc(7rem + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(80px); background:var(--navy); color:white; padding:0.65rem 1.25rem; border-radius:30px; font-size:0.78rem; font-weight:800; box-shadow:0 8px 24px rgba(10,25,49,0.32); transition:transform 0.25s, opacity 0.25s; z-index:999; opacity:0; pointer-events:none; display:flex; align-items:center; gap:0.6rem; white-space:nowrap; }
     .toast.show { transform:translateX(-50%) translateY(0); opacity:1; pointer-events:auto; }
-    .toast button { background:var(--green); color:white; border:none; padding:0.28rem 0.65rem; border-radius:14px; font-size:0.7rem; font-weight:800; cursor:pointer; }
+    .toast button { background:var(--green); color:white; border:none; padding:0.38rem 0.75rem; border-radius:14px; font-size:0.74rem; font-weight:900; cursor:pointer; min-height:32px; }
+    .toast.undo-toast { overflow:hidden; padding-bottom:0.78rem; }
+    .toast.undo-toast::after { content:""; position:absolute; left:0; bottom:0; height:3px; width:100%; background:#4ade80; transform-origin:left; animation:undoCountdown 6s linear forwards; }
+    @keyframes undoCountdown { from{transform:scaleX(1);} to{transform:scaleX(0);} }
+    .export-range-summary { font-size:0.76rem; font-weight:800; color:#24466f; background:#eef4fc; padding:0.65rem; border-radius:0.7rem; margin-top:0.55rem; line-height:1.5; }
+    @media (max-width:520px) {
+        .grid-products { grid-template-columns:repeat(2,minmax(0,1fr)); gap:0.65rem; }
+        .product-tile { min-height:185px; padding:0.65rem; }
+        .table-container { overflow:visible; }
+        .sales-table, .sales-table tbody, .sales-table tr, .sales-table td { display:block; width:100%; }
+        .sales-table thead { display:none; }
+        .sales-table tr.table-row-item { background:#fff; border:1px solid var(--border); border-radius:0.9rem; padding:0.45rem 0.7rem; margin:0 0 0.65rem; box-shadow:0 2px 8px rgba(10,25,49,0.04); }
+        .sales-table tr.table-row-item td { display:flex; justify-content:space-between; align-items:flex-start; gap:0.8rem; padding:0.46rem 0.1rem; border-bottom:1px dashed #e5ebf3; text-align:right; overflow-wrap:anywhere; font-size:0.76rem; }
+        .sales-table tr.table-row-item td:last-child { border-bottom:0; }
+        .sales-table tr.table-row-item td::before { content:attr(data-label); flex:0 0 31%; text-align:left; color:#647995; font-size:0.68rem; font-weight:900; }
+        .sales-table tr.table-row-item td:nth-child(3) { display:block; text-align:left; }
+        .sales-table tr.table-row-item td:nth-child(3)::before { display:block; margin-bottom:0.2rem; }
+        .modal-card { max-height:92vh; padding:1rem; }
+        .loc-tab { font-size:0.68rem; padding:0.62rem 0.12rem; }
+    }
+    @media (max-width:350px) { .grid-products { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 
     .small-note { font-size:0.68rem; font-weight:700; color:var(--muted); margin-top:0.4rem; text-align:center; }
     @media (max-width:350px) { .grid-products { grid-template-columns:repeat(2, 1fr); } }
@@ -196,49 +232,77 @@
 <div class="modal-overlay" id="quickModal">
     <div class="modal-card">
         <div class="modal-title">
-            <span id="modalProdTitle">Edit Entry</span>
+            <span id="modalProdTitle">Add Entry</span>
             <button class="btn btn-sm btn-outline" id="closeModalBtn" style="padding:0.2rem 0.5rem;">✕</button>
         </div>
-        <div style="background:#eef3fa;border-radius:0.6rem;padding:0.4rem 0.6rem;font-size:0.75rem;font-weight:900;color:var(--navy);margin-bottom:0.7rem;text-align:center;">
-            📅 DATE: <span id="modalActiveDateDisplay" style="color:var(--blue);"></span>
-        </div>
-        
-        <!-- LOCATION SELECTOR IN MODAL -->
         <div class="modal-group">
-            <label>Location</label>
+            <label for="modalDateInput">ENTRY DATE</label>
+            <input type="date" id="modalDateInput">
+        </div>
+        <div class="modal-grid-2">
+            <div class="modal-group">
+                <label for="modalBrandInput">BRAND / GROUP</label>
+                <input type="text" id="modalBrandInput" placeholder="BRAND">
+            </div>
+            <div class="modal-group">
+                <label for="modalTimeInput">ENTRY TIME</label>
+                <input type="time" id="modalTimeInput">
+            </div>
+        </div>
+        <div class="modal-group">
+            <label for="modalNameInput">PRODUCT NAME / DESCRIPTION</label>
+            <input type="text" id="modalNameInput" placeholder="PRODUCT NAME">
+        </div>
+        <div class="modal-group">
+            <label>LOCATION — SELECT FOR THIS ENTRY</label>
             <div class="loc-bar" id="modalLocBar" style="margin-bottom:0;">
-                <div class="loc-tab active" data-loc="DUBAI MALL">DUBAI MALL</div>
+                <div class="loc-tab" data-loc="DUBAI MALL">DUBAI MALL</div>
                 <div class="loc-tab" data-loc="RESIDENCE">RESIDENCE</div>
                 <div class="loc-tab" data-loc="IBN">IBN</div>
             </div>
+            <div class="small-note" id="locationRequiredNote" style="text-align:left;color:var(--blue);">Choose the location where this entry belongs.</div>
         </div>
-
         <div class="modal-group">
-            <label>Invoice No (INV)</label>
+            <label for="modalInvInput">INVOICE NO. (INV)</label>
             <input type="text" id="modalInvInput" placeholder="e.g. INV-001">
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+        <div class="modal-grid-2">
             <div class="modal-group">
-                <label>Quantity</label>
-                <input type="number" id="modalQtyInput" min="1" step="1" value="1">
+                <label>QUANTITY</label>
+                <div class="qty-control">
+                    <button type="button" class="qty-step" id="qtyMinusBtn" aria-label="Decrease quantity">−</button>
+                    <input type="number" id="modalQtyInput" min="1" step="1" value="1" inputmode="numeric">
+                    <button type="button" class="qty-step" id="qtyPlusBtn" aria-label="Increase quantity">+</button>
+                </div>
             </div>
             <div class="modal-group">
-                <label>Price (AED)</label>
-                <input type="number" id="modalPriceInput" step="0.5" min="0">
+                <label for="modalPriceInput">UNIT PRICE (AED)</label>
+                <input type="number" id="modalPriceInput" step="0.01" min="0" inputmode="decimal">
             </div>
         </div>
-        <div class="modal-group">
-            <label>Remarks / Discrepancy Note</label>
+        <div class="modal-group" style="margin-top:0.55rem;">
+            <label class="chk-label" style="font-size:0.78rem;"><input type="checkbox" id="modalPromoChk"> PROMO ITEM</label>
+        </div>
+        <label class="catalog-sync" id="catalogSyncWrap">
+            <input type="checkbox" id="updateCatalogChk" checked>
+            <span><strong>Update master catalogue</strong><br>When the product name, brand or price is changed, save the same changes to its catalogue record for future quick entries.</span>
+        </label>
+        <div class="modal-group" style="margin-top:0.7rem;">
+            <label for="modalRemarksInput">REMARKS / DISCREPANCY NOTE</label>
             <textarea id="modalRemarksInput" rows="2" placeholder="TYPE REMARKS HERE..."></textarea>
         </div>
         <div class="modal-group">
-            <label>Attach Bill Copy (Image)</label>
+            <label for="modalBillInput">ATTACH BILL COPY (IMAGE)</label>
             <input type="file" id="modalBillInput" accept="image/*" style="font-size:0.75rem;padding:0.3rem;">
             <div id="billPreviewContainer" style="margin-top:0.3rem;font-size:0.68rem;color:var(--green);font-weight:800;"></div>
         </div>
+        <div class="reorder-controls" id="modalReorderControls" style="display:none;">
+            <button type="button" class="btn btn-outline btn-sm" id="moveEntryUpBtn">↑ MOVE UP</button>
+            <button type="button" class="btn btn-outline btn-sm" id="moveEntryDownBtn">↓ MOVE DOWN</button>
+        </div>
         <div style="display:flex;gap:0.5rem;margin-top:1rem;">
-            <button class="btn btn-primary btn-block" id="saveModalBtn">CONFIRM & SAVE</button>
-            <button class="btn btn-danger btn-sm" id="deleteModalItemBtn" style="display:none;">REMOVE</button>
+            <button class="btn btn-primary btn-block" id="saveModalBtn">ADD ENTRY</button>
+            <button class="btn btn-danger btn-sm" id="deleteModalItemBtn" style="display:none;">DELETE</button>
         </div>
     </div>
 </div>
@@ -268,6 +332,7 @@
                 <input type="date" id="rangeEndDate">
             </div>
         </div>
+        <div class="export-range-summary" id="exportRangeSummary">Confirm the FROM and TO dates before exporting.</div>
         <div style="display:flex;gap:0.5rem;margin-top:1rem;">
             <button class="btn btn-primary btn-block" id="rangeExportCsvBtn">📊 EXPORT CSV</button>
             <button class="btn btn-green btn-block" id="rangeExportImgBtn">📸 EXPORT IMAGE</button>
@@ -306,7 +371,7 @@
 
         <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
-                <div style="font-size:0.88rem;font-weight:900;color:var(--navy);">⚡ ONE-TAP QUICK ADD (+1)</div>
+                <div style="font-size:0.88rem;font-weight:900;color:var(--navy);">⚡ QUICK ADD — TAP A PRODUCT</div>
                 <div style="font-size:0.68rem;color:var(--muted);font-weight:800;" id="promoCount"></div>
             </div>
             <div class="search-wrap">
@@ -418,8 +483,11 @@
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
                 <div>
                     <div style="font-size:0.88rem;font-weight:900;color:var(--navy);">⚙️ EXISTING MASTER MEDICINES</div>
-                    <div style="font-size:0.66rem;font-weight:700;color:var(--muted);">TAP EMPTY BOX TO UPLOAD PHOTO OR EDIT</div>
+                    <div style="font-size:0.66rem;font-weight:700;color:var(--muted);">PRODUCTS ARE SORTED A–Z • SEARCH, EDIT NAME, BRAND, PRICE OR PROMO</div>
                 </div>
+            </div>
+            <div class="search-wrap" style="margin:0.65rem 0;">
+                <input type="text" id="settingsSearchInput" placeholder="SEARCH CATALOGUE BY NAME OR BRAND..." aria-label="Search product catalogue">
             </div>
             <div id="settingsList"></div>
             <div class="setting-row" style="border-top:2px solid #e9edf4;margin-top:0.5rem;padding-top:0.7rem;">
@@ -436,7 +504,7 @@
                 </label>
                 <div style="display:flex;align-items:center;gap:0.35rem;margin-left:auto;">
                     <span style="font-size:0.72rem;color:var(--muted);font-weight:800;">PIN:</span>
-                    <input type="password" id="pinCodeInput" maxlength="4" pattern="[0-9]*" inputmode="numeric" placeholder="1234" style="width:74px;text-align:center;font-weight:900;letter-spacing:2px;">
+                    <input type="password" id="pinCodeInput" maxlength="4" pattern="[0-9]*" inputmode="numeric" autocomplete="new-password" placeholder="NEW PIN" style="width:88px;text-align:center;font-weight:900;letter-spacing:2px;">
                     <button class="btn btn-sm btn-primary" id="savePinBtn">SAVE PIN</button>
                 </div>
             </div>
@@ -528,12 +596,15 @@
     let pinCode = '1234';
     let enteredPin = '';
     let searchQuery = '';
+    let settingsSearchQuery = '';
     let promoOnly = false;
     let imgUploadTargetIdx = null;
 
     let activeModalEntryId = null;
     let activeModalProdId = null;
+    let activeModalSourceDateKey = '';
     let modalBillDataUrl = '';
+    let lastUndoTimer = null;
 
     const STORAGE_KEY = 'vysakh_sales_data_v10';
 
@@ -553,6 +624,7 @@
     const exportCanvas = document.getElementById('exportCanvas');
     const promoCountEl = document.getElementById('promoCount');
     const searchInput = document.getElementById('searchInput');
+    const settingsSearchInput = document.getElementById('settingsSearchInput');
     const promoFilterBtn = document.getElementById('promoFilterBtn');
     const stickySummary = document.getElementById('stickySummary');
     const stickyDateLbl = document.getElementById('stickyDateLbl');
@@ -578,17 +650,25 @@
 
     const quickModal = document.getElementById('quickModal');
     const modalProdTitle = document.getElementById('modalProdTitle');
-    const modalActiveDateDisplay = document.getElementById('modalActiveDateDisplay');
+    const modalDateInput = document.getElementById('modalDateInput');
+    const modalBrandInput = document.getElementById('modalBrandInput');
+    const modalNameInput = document.getElementById('modalNameInput');
+    const modalTimeInput = document.getElementById('modalTimeInput');
     const modalInvInput = document.getElementById('modalInvInput');
     const modalQtyInput = document.getElementById('modalQtyInput');
     const modalPriceInput = document.getElementById('modalPriceInput');
     const modalRemarksInput = document.getElementById('modalRemarksInput');
     const modalBillInput = document.getElementById('modalBillInput');
     const billPreviewContainer = document.getElementById('billPreviewContainer');
-    const oldPriceRef = document.getElementById('oldPriceRef');
     const saveModalBtn = document.getElementById('saveModalBtn');
     const deleteModalItemBtn = document.getElementById('deleteModalItemBtn');
     const closeModalBtn = document.getElementById('closeModalBtn');
+    const updateCatalogChk = document.getElementById('updateCatalogChk');
+    const modalPromoChk = document.getElementById('modalPromoChk');
+    const catalogSyncWrap = document.getElementById('catalogSyncWrap');
+    const modalReorderControls = document.getElementById('modalReorderControls');
+    const locationRequiredNote = document.getElementById('locationRequiredNote');
+    const exportRangeSummary = document.getElementById('exportRangeSummary');
 
     // MULTI-DATE MODAL ELEMENTS
     const rangeExportModal = document.getElementById('rangeExportModal');
@@ -611,7 +691,27 @@
     }
     function currentShiftTime() {
         const d = new Date();
-        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
+    function timeForInput(value) {
+        if (!value) return currentShiftTime();
+        const raw = String(value).trim();
+        let m = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+        if (m) {
+            let h = Number(m[1]) % 12;
+            if (m[3].toUpperCase() === 'PM') h += 12;
+            return String(h).padStart(2, '0') + ':' + m[2];
+        }
+        m = raw.match(/^(\d{1,2}):(\d{2})/);
+        return m ? String(Math.min(23, Number(m[1]))).padStart(2, '0') + ':' + m[2] : currentShiftTime();
+    }
+    function displayTime(value) {
+        const t = timeForInput(value);
+        const [h, m] = t.split(':').map(Number);
+        return String(h % 12 || 12).padStart(2, '0') + ':' + String(m).padStart(2, '0') + (h >= 12 ? ' PM' : ' AM');
+    }
+    function sortedProducts() {
+        return products.slice().sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' }));
     }
     function shiftDateKey(key, deltaDays) {
         const [y,m,d] = key.split('-').map(Number);
@@ -624,14 +724,33 @@
         const [y,m,d] = key.split('-');
         return d + '/' + m + '/' + y;
     }
-    function showToast(msg) {
+    function hideToast() {
+        clearTimeout(toastEl._t);
+        toastEl.classList.remove('show', 'undo-toast');
         toastEl.innerHTML = '';
+    }
+    function showToast(msg) {
+        hideToast();
         const span = document.createElement('span');
         span.textContent = msg;
         toastEl.appendChild(span);
         toastEl.classList.add('show');
-        clearTimeout(toastEl._t);
-        toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 2800);
+        toastEl._t = setTimeout(hideToast, 2800);
+    }
+    function showUndoToast(msg, undoAction) {
+        hideToast();
+        const span = document.createElement('span');
+        span.textContent = msg;
+        const undoBtn = document.createElement('button');
+        undoBtn.type = 'button';
+        undoBtn.textContent = 'UNDO';
+        undoBtn.addEventListener('click', () => {
+            hideToast();
+            undoAction();
+        }, { once: true });
+        toastEl.append(span, undoBtn);
+        toastEl.classList.add('show', 'undo-toast');
+        toastEl._t = setTimeout(hideToast, 6000);
     }
     function uid() {
         return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
@@ -692,7 +811,7 @@
 
     function initPinLock() {
         pinEnabledChk.checked = pinEnabled;
-        pinCodeInput.value = pinCode;
+        pinCodeInput.value = '';
         if (pinEnabled) lockApp();
     }
     function lockApp() {
@@ -706,26 +825,31 @@
             dot.classList.toggle('error', !!isError);
         });
     }
-    document.querySelectorAll('.pin-key').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const k = btn.dataset.k;
-            if (k === 'clear') { enteredPin = ''; updatePinDots(); return; }
-            if (k === 'del') { enteredPin = enteredPin.slice(0, -1); updatePinDots(); return; }
-            if (enteredPin.length < 4) {
-                enteredPin += k;
-                updatePinDots();
-                if (enteredPin.length === 4) {
-                    if (enteredPin === pinCode) {
-                        setTimeout(() => pinOverlay.classList.remove('active'), 120);
-                    } else {
-                        updatePinDots(true);
-                        setTimeout(() => { enteredPin = ''; updatePinDots(); }, 380);
-                    }
-                }
+    function processPinKey(k) {
+        if (k === 'clear') { enteredPin = ''; updatePinDots(); return; }
+        if (k === 'del') { enteredPin = enteredPin.slice(0, -1); updatePinDots(); return; }
+        if (!/^\d$/.test(String(k)) || enteredPin.length >= 4) return;
+        enteredPin += String(k);
+        updatePinDots();
+        if (enteredPin.length === 4) {
+            if (enteredPin === pinCode) {
+                setTimeout(() => pinOverlay.classList.remove('active'), 120);
+            } else {
+                updatePinDots(true);
+                setTimeout(() => { enteredPin = ''; updatePinDots(); }, 500);
             }
-        });
+        }
+    }
+    document.querySelectorAll('.pin-key').forEach(btn => {
+        btn.addEventListener('click', () => processPinKey(btn.dataset.k));
     });
-    document.getElementById('lockNowBtn').addEventListener('click', lockApp);
+    document.addEventListener('keydown', (e) => {
+        if (!pinOverlay.classList.contains('active')) return;
+        if (/^\d$/.test(e.key)) processPinKey(e.key);
+        else if (e.key === 'Backspace') processPinKey('del');
+        else if (e.key === 'Escape') processPinKey('clear');
+    });
+document.getElementById('lockNowBtn').addEventListener('click', lockApp);
     pinEnabledChk.addEventListener('change', () => {
         pinEnabled = pinEnabledChk.checked;
         saveData();
@@ -739,7 +863,8 @@
         }
         pinCode = val;
         saveData();
-        showToast('PIN UPDATED TO ' + val);
+        pinCodeInput.value = '';
+        showToast('PIN UPDATED');
     });
 
     // LOCATION SELECTION LOGIC
@@ -750,10 +875,7 @@
         });
     });
     modalLocTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            modalLocTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-        });
+        tab.addEventListener('click', () => selectModalLocation(tab.dataset.loc));
     });
 
     function getActiveDashboardLoc() {
@@ -761,32 +883,91 @@
         return activeTab ? activeTab.dataset.loc : 'DUBAI MALL';
     }
 
-    function openEditModal(entry) {
-        const prod = products.find(p => p.id === entry.prodId) || { name: entry.name, price: entry.price };
+    function selectModalLocation(location) {
+        let selected = false;
+        modalLocTabs.forEach(tab => {
+            const active = !!location && tab.dataset.loc === location;
+            tab.classList.toggle('active', active);
+            if (active) selected = true;
+        });
+        locationRequiredNote.textContent = selected ? 'Location selected for this entry.' : 'Choose the location where this entry belongs.';
+        locationRequiredNote.style.color = selected ? 'var(--green)' : 'var(--blue)';
+    }
+    function getSelectedModalLocation() {
+        const activeTab = document.querySelector('#modalLocBar .loc-tab.active');
+        return activeTab ? activeTab.dataset.loc : '';
+    }
+    function resetModalForAdd(prod) {
+        activeModalEntryId = null;
+        activeModalSourceDateKey = '';
+        activeModalProdId = prod ? prod.id : null;
+        const linked = prod && products.some(p => p.id === prod.id);
+        modalProdTitle.textContent = 'ADD SALES ENTRY';
+        modalDateInput.value = activeDateKey || todayKey();
+        modalBrandInput.value = prod ? (prod.brand || '') : '';
+        modalNameInput.value = prod ? (prod.name || '') : '';
+        modalTimeInput.value = currentShiftTime();
+        modalInvInput.value = 'INV-' + Math.floor(1000 + Math.random() * 9000);
+        modalQtyInput.value = 1;
+        modalPriceInput.value = prod ? Number(prod.price || 0).toFixed(2) : '';
+        modalPromoChk.checked = !!(prod && prod.promo);
+        modalRemarksInput.value = '';
+        modalBillDataUrl = '';
+        modalBillInput.value = '';
+        billPreviewContainer.textContent = '';
+        deleteModalItemBtn.style.display = 'none';
+        modalReorderControls.style.display = 'none';
+        saveModalBtn.textContent = 'ADD ENTRY';
+        catalogSyncWrap.style.display = linked ? 'flex' : 'none';
+        updateCatalogChk.checked = !!linked;
+        selectModalLocation('');
+        quickModal.classList.add('active');
+    }
+    function openAddEntryModal(prod) {
+        resetModalForAdd(prod || null);
+    }
+    function openEditModal(entry, dateKey) {
+        const prod = products.find(p => p.id === entry.prodId);
         activeModalEntryId = entry.id;
-        activeModalProdId = entry.prodId;
-        
-        modalProdTitle.textContent = 'EDIT ENTRY: ' + entry.name;
-        modalActiveDateDisplay.textContent = formatDateDisplay(activeDateKey);
+        activeModalSourceDateKey = dateKey || activeDateKey;
+        activeModalProdId = entry.prodId || null;
+        modalProdTitle.textContent = 'EDIT SALES ENTRY';
+        modalDateInput.value = activeModalSourceDateKey;
+        modalBrandInput.value = entry.brand || (prod && prod.brand) || '';
+        modalNameInput.value = entry.name || (prod && prod.name) || '';
+        modalTimeInput.value = timeForInput(entry.time);
         modalInvInput.value = entry.inv || '';
         modalQtyInput.value = entry.qty || 1;
-        modalPriceInput.value = entry.price ?? prod.price;
+        modalPriceInput.value = Number(entry.price ?? (prod && prod.price) ?? 0).toFixed(2);
+        modalPromoChk.checked = !!entry.promo;
         modalRemarksInput.value = entry.remarks || '';
         modalBillDataUrl = entry.billImg || '';
-        oldPriceRef.textContent = `(CATALOG: AED ${prod.price.toFixed(2)})`;
         deleteModalItemBtn.style.display = 'inline-flex';
-
-        modalLocTabs.forEach(t => {
-            t.classList.remove('active');
-            if (t.dataset.loc === (entry.loc || 'DUBAI MALL')) t.classList.add('active');
-        });
-
-        billPreviewContainer.innerHTML = modalBillDataUrl ? '📎 BILL ATTACHED' : '';
+        modalReorderControls.style.display = 'flex';
+        saveModalBtn.textContent = 'SAVE CHANGES';
+        catalogSyncWrap.style.display = prod ? 'flex' : 'none';
+        updateCatalogChk.checked = !!prod;
+        selectModalLocation(entry.loc || '');
+        billPreviewContainer.textContent = modalBillDataUrl ? '📎 BILL ATTACHED' : '';
         modalBillInput.value = '';
         quickModal.classList.add('active');
     }
-
-    closeModalBtn.addEventListener('click', () => quickModal.classList.remove('active'));
+    function closeEntryModal() {
+        quickModal.classList.remove('active');
+        activeModalEntryId = null;
+        activeModalSourceDateKey = '';
+        activeModalProdId = null;
+    }
+    closeModalBtn.addEventListener('click', closeEntryModal);
+    document.getElementById('qtyMinusBtn').addEventListener('click', () => {
+        modalQtyInput.value = Math.max(1, (parseInt(modalQtyInput.value, 10) || 1) - 1);
+    });
+    document.getElementById('qtyPlusBtn').addEventListener('click', () => {
+        modalQtyInput.value = Math.max(1, (parseInt(modalQtyInput.value, 10) || 1) + 1);
+    });
+    modalQtyInput.addEventListener('change', () => {
+        modalQtyInput.value = Math.max(1, parseInt(modalQtyInput.value, 10) || 1);
+    });
 
     modalBillInput.addEventListener('change', (e) => {
         const file = e.target.files && e.target.files[0];
@@ -804,7 +985,7 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, w, h);
                 modalBillDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                billPreviewContainer.innerHTML = '📎 BILL ATTACHED SUCCESSFULLY!';
+                billPreviewContainer.textContent = '📎 BILL ATTACHED SUCCESSFULLY!';
             };
             img.src = ev.target.result;
         };
@@ -812,59 +993,164 @@
     });
 
     saveModalBtn.addEventListener('click', () => {
-        if (!activeModalEntryId) return;
-        const qty = parseInt(modalQtyInput.value, 10) || 1;
-        const price = parseFloat(modalPriceInput.value) || 0;
+        const dateKey = modalDateInput.value;
+        const loc = getSelectedModalLocation();
+        const name = modalNameInput.value.trim().toUpperCase();
+        const brand = (modalBrandInput.value.trim() || 'OTHER').toUpperCase();
+        const qty = Math.max(1, parseInt(modalQtyInput.value, 10) || 1);
+        const price = Number(modalPriceInput.value);
+        const time = modalTimeInput.value || currentShiftTime();
         const inv = (modalInvInput.value.trim() || 'INV-001').toUpperCase();
         const remarks = modalRemarksInput.value.trim().toUpperCase();
-        const activeModLoc = document.querySelector('#modalLocBar .loc-tab.active').dataset.loc;
 
-        const dateObj = salesByDate[activeDateKey] || { entries: [], sent: false };
-        dateObj.updatedAt = Date.now();
-        salesByDate[activeDateKey] = dateObj;
-        const entries = dateObj.entries;
+        if (!dateKey) { showToast('PLEASE SELECT ENTRY DATE'); modalDateInput.focus(); return; }
+        if (!loc) { showToast('PLEASE SELECT ENTRY LOCATION'); return; }
+        if (!name) { showToast('PLEASE ENTER PRODUCT NAME'); modalNameInput.focus(); return; }
+        if (!Number.isFinite(price) || price < 0) { showToast('PLEASE ENTER A VALID PRICE'); modalPriceInput.focus(); return; }
 
-        const entry = entries.find(e => e.id === activeModalEntryId);
-        if (entry) {
-            entry.loc = activeModLoc;
-            entry.inv = inv;
-            entry.qty = qty;
-            entry.price = price;
-            entry.remarks = remarks;
-            entry.billImg = modalBillDataUrl;
+        const sourceDate = activeModalSourceDateKey;
+        const isEdit = !!activeModalEntryId;
+        let entry = null;
+        let originalIndex = -1;
+        if (isEdit && sourceDate && salesByDate[sourceDate]) {
+            originalIndex = salesByDate[sourceDate].entries.findIndex(e => e.id === activeModalEntryId);
+            entry = originalIndex >= 0 ? salesByDate[sourceDate].entries[originalIndex] : null;
+        }
+        const entryId = isEdit ? activeModalEntryId : uid();
+        const updatedEntry = {
+            ...(entry || {}),
+            id: entryId,
+            prodId: activeModalProdId || (entry && entry.prodId) || null,
+            brand,
+            name,
+            promo: modalPromoChk.checked,
+            time,
+            loc,
+            inv,
+            qty,
+            price,
+            remarks,
+            billImg: modalBillDataUrl
+        };
+
+        if (isEdit && sourceDate && salesByDate[sourceDate]) {
+            const oldEntries = salesByDate[sourceDate].entries;
+            const oldIndex = oldEntries.findIndex(e => e.id === entryId);
+            if (oldIndex !== -1) oldEntries.splice(oldIndex, 1);
+            salesByDate[sourceDate].updatedAt = Date.now();
+        }
+        if (!salesByDate[dateKey]) salesByDate[dateKey] = { entries: [], sent: false, updatedAt: Date.now() };
+        if (!Array.isArray(salesByDate[dateKey].entries)) salesByDate[dateKey].entries = [];
+        const insertAt = isEdit && sourceDate === dateKey && originalIndex >= 0
+            ? Math.min(originalIndex, salesByDate[dateKey].entries.length)
+            : salesByDate[dateKey].entries.length;
+        salesByDate[dateKey].entries.splice(insertAt, 0, updatedEntry);
+        salesByDate[dateKey].updatedAt = Date.now();
+
+        const linkedProduct = products.find(p => p.id === updatedEntry.prodId);
+        const catalogSnapshot = linkedProduct ? {
+            name: linkedProduct.name,
+            brand: linkedProduct.brand,
+            price: linkedProduct.price,
+            promo: linkedProduct.promo
+        } : null;
+        if (linkedProduct && updateCatalogChk.checked) {
+            linkedProduct.name = name;
+            linkedProduct.brand = brand;
+            linkedProduct.price = price;
+            linkedProduct.promo = modalPromoChk.checked;
         }
 
         saveData();
-        quickModal.classList.remove('active');
+        activeDateKey = dateKey;
+        closeEntryModal();
         renderAll();
-        showToast('ENTRY UPDATED');
-    });
-
-    deleteModalItemBtn.addEventListener('click', () => {
-        if (!activeModalEntryId) return;
-        const entries = getActiveDateEntries();
-        const idx = entries.findIndex(e => e.id === activeModalEntryId);
-        if (idx !== -1) {
-            entries.splice(idx, 1);
-            if(salesByDate[activeDateKey]) salesByDate[activeDateKey].updatedAt = Date.now();
-            saveData();
-            quickModal.classList.remove('active');
-            renderAll();
-            showToast('ENTRY REMOVED');
+        if (isEdit) showToast(dateKey !== sourceDate ? 'ENTRY UPDATED AND MOVED TO ' + formatDateDisplay(dateKey) : 'ENTRY UPDATED');
+        else {
+            showUndoToast('ENTRY ADDED', () => {
+                const bucket = salesByDate[dateKey];
+                if (bucket) {
+                    bucket.entries = bucket.entries.filter(e => e.id !== entryId);
+                    bucket.updatedAt = Date.now();
+                }
+                if (linkedProduct && catalogSnapshot && updateCatalogChk.checked) {
+                    linkedProduct.name = catalogSnapshot.name;
+                    linkedProduct.brand = catalogSnapshot.brand;
+                    linkedProduct.price = catalogSnapshot.price;
+                    linkedProduct.promo = catalogSnapshot.promo;
+                }
+                saveData();
+                renderAll();
+                showToast('LAST ENTRY UNDONE');
+            });
         }
     });
 
+    deleteModalItemBtn.addEventListener('click', () => {
+        if (!activeModalEntryId || !activeModalSourceDateKey) return;
+        if (!confirm('DELETE THIS ENTRY?')) return;
+        const bucket = salesByDate[activeModalSourceDateKey];
+        if (bucket) {
+            bucket.entries = bucket.entries.filter(e => e.id !== activeModalEntryId);
+            bucket.updatedAt = Date.now();
+            saveData();
+            closeEntryModal();
+            renderAll();
+            showToast('ENTRY DELETED');
+        }
+    });
+    function moveActiveEntry(direction) {
+        if (!activeModalEntryId || !activeModalSourceDateKey) return;
+        const bucket = salesByDate[activeModalSourceDateKey];
+        if (!bucket || !Array.isArray(bucket.entries)) return;
+        const from = bucket.entries.findIndex(e => e.id === activeModalEntryId);
+        const to = from + direction;
+        if (from < 0 || to < 0 || to >= bucket.entries.length) { showToast('ENTRY IS ALREADY AT THE ' + (direction < 0 ? 'TOP' : 'BOTTOM')); return; }
+        [bucket.entries[from], bucket.entries[to]] = [bucket.entries[to], bucket.entries[from]];
+        bucket.updatedAt = Date.now();
+        saveData();
+        renderTodayTable();
+        renderHistory();
+        showToast(direction < 0 ? 'ENTRY MOVED UP' : 'ENTRY MOVED DOWN');
+    }
+    document.getElementById('moveEntryUpBtn').addEventListener('click', () => moveActiveEntry(-1));
+    document.getElementById('moveEntryDownBtn').addEventListener('click', () => moveActiveEntry(1));
+
     // MULTI-DATE MODAL LOGIC
+    function updateExportRangeSummary() {
+        let start = '', end = todayKey();
+        if (rangeSelect.value === 'last_sent') start = lastSent ? lastSent.date : '2000-01-01';
+        else if (rangeSelect.value === 'this_month') start = firstOfMonthKey();
+        else { start = rangeStartDate.value; end = rangeEndDate.value; }
+        exportRangeSummary.textContent = start && end
+            ? 'CONFIRM RANGE: ' + formatDateDisplay(start) + ' TO ' + formatDateDisplay(end)
+            : 'Select both FROM and TO dates to continue.';
+    }
+    function openRangeExportForActiveDate() {
+        rangeSelect.value = 'custom';
+        customDateRow.style.display = 'grid';
+        rangeStartDate.value = activeDateKey;
+        rangeEndDate.value = activeDateKey;
+        updateExportRangeSummary();
+        rangeExportModal.classList.add('active');
+    }
     openRangeModalBtn.addEventListener('click', () => {
         rangeSelect.value = 'last_sent';
         customDateRow.style.display = 'none';
+        updateExportRangeSummary();
         rangeExportModal.classList.add('active');
     });
     closeRangeModalBtn.addEventListener('click', () => rangeExportModal.classList.remove('active'));
     
     rangeSelect.addEventListener('change', () => {
         customDateRow.style.display = rangeSelect.value === 'custom' ? 'grid' : 'none';
+        updateExportRangeSummary();
     });
+    rangeStartDate.addEventListener('change', updateExportRangeSummary);
+    rangeEndDate.addEventListener('change', updateExportRangeSummary);
+    function confirmExportDates(range) {
+        return confirm('CONFIRM EXPORT DATE RANGE\nFROM: ' + formatDateDisplay(range.start) + '\nTO: ' + formatDateDisplay(range.end));
+    }
 
     function getSelectedDateRange() {
         let start = '';
@@ -900,14 +1186,14 @@
         // Sort Date chronologically
         allEntries.sort((a, b) => {
             if (a.activeDate !== b.activeDate) return a.activeDate.localeCompare(b.activeDate);
-            return (a.time || '').localeCompare(b.time || '');
+            return timeForInput(a.time).localeCompare(timeForInput(b.time));
         });
         return allEntries;
     }
 
     rangeExportCsvBtn.addEventListener('click', () => {
         const range = getSelectedDateRange();
-        if (!range) return;
+        if (!range || !confirmExportDates(range)) return;
         const entries = getAggregatedEntries(range.start, range.end);
         if (entries.length === 0) {
             showToast('NO SALES FOUND IN THIS RANGE');
@@ -943,7 +1229,7 @@
 
     rangeExportImgBtn.addEventListener('click', () => {
         const range = getSelectedDateRange();
-        if (!range) return;
+        if (!range || !confirmExportDates(range)) return;
         const entries = getAggregatedEntries(range.start, range.end);
         if (entries.length === 0) {
             showToast('NO SALES FOUND IN THIS RANGE');
@@ -1049,13 +1335,13 @@
 
     function renderDashboardTiles() {
         if (!products.length) { dashboardTiles.innerHTML = ''; return; }
-        const tilesList = products.slice(0, 6);
+        const tilesList = sortedProducts().slice(0, 6);
         dashboardTiles.innerHTML = tilesList.map(p => {
             const media = p.img ? `<img src="${p.img}" alt="">` : `<span class="dash-tile-placeholder-text">${getInitials(p.name)}</span>`;
-            return `<div class="dash-tile" data-id="${p.id}" title="${escapeHtml(p.name)}">
+            return `<button type="button" class="dash-tile" data-id="${p.id}" title="${escapeHtml(p.name)}">
                 <div class="dash-tile-img">${media}</div>
                 <div class="dash-tile-name">${escapeHtml(p.name)}</div>
-            </div>`;
+            </button>`;
         }).join('');
 
         dashboardTiles.querySelectorAll('.dash-tile').forEach(tile => {
@@ -1066,7 +1352,7 @@
     }
 
     function renderProducts() {
-        let list = products;
+        let list = sortedProducts();
         if (searchQuery.trim()) {
             const q = searchQuery.trim().toLowerCase();
             list = list.filter(p => p.name.toLowerCase().includes(q) || (p.brand && p.brand.toLowerCase().includes(q)));
@@ -1082,13 +1368,14 @@
             const totalQty = entries.filter(e => e.prodId === p.id).reduce((sum, e) => sum + e.qty, 0);
             const qtyBadge = totalQty > 0 ? `<span class="qty-tap-badge">×${totalQty}</span>` : '';
             const media = p.img ? `<img src="${p.img}" alt="${escapeHtml(p.name)}">` : `<span class="pimg-placeholder-text">${getInitials(p.name)}</span>`;
-            return `<div class="product-tile${p.promo ? ' promo' : ''}" data-id="${p.id}">
+            return `<button type="button" class="product-tile${p.promo ? ' promo' : ''}" data-id="${p.id}" aria-label="Add ${escapeHtml(p.name)}">
                 ${qtyBadge}
                 ${badge}
                 <div class="pimg-box">${media}</div>
                 <div class="pname">${escapeHtml(p.name)}</div>
-                <div class="pprice">AED ${p.price.toFixed(2)}</div>
-            </div>`;
+                <div class="pprice">AED ${Number(p.price || 0).toFixed(2)}</div>
+                <span class="tap-hint">TAP TO ADD</span>
+            </button>`;
         }).join('');
 
         productGrid.querySelectorAll('.product-tile').forEach(el => {
@@ -1098,56 +1385,16 @@
         });
     }
 
-    // INSTANT ONE-TAP ADDITION FOR TODAY WITH LOCATION LOGGING
+    // PRODUCT TAP OPENS A QUICK-ADD SHEET: LOCATION, QTY AND PRICE ARE CONFIRMED PER ENTRY.
     function quickAddProduct(prodId, event) {
         const prod = products.find(p => p.id === prodId);
         if (!prod) return;
-
-        const target = event.currentTarget;
-        target.classList.add('pulse-anim');
-        setTimeout(() => target.classList.remove('pulse-anim'), 350);
-
-        const rect = target.getBoundingClientRect();
-        const plus = document.createElement('div');
-        plus.className = 'floating-plus';
-        plus.textContent = '+1';
-        plus.style.left = (event.clientX || (rect.left + rect.width / 2)) + 'px';
-        plus.style.top = (event.clientY || (rect.top + rect.height / 2)) + 'px';
-        document.body.appendChild(plus);
-        setTimeout(() => plus.remove(), 600);
-
-        const activeLoc = getActiveDashboardLoc();
-        const dateObj = salesByDate[activeDateKey] || { entries: [], sent: false };
-        dateObj.updatedAt = Date.now();
-        salesByDate[activeDateKey] = dateObj;
-        const entries = dateObj.entries;
-
-        const existing = entries.find(e => e.prodId === prod.id && !e.remarks && e.price === prod.price && e.loc === activeLoc);
-        if (existing) {
-            existing.qty += 1;
-        } else {
-            entries.push({
-                id: uid(),
-                prodId: prod.id,
-                brand: (prod.brand || 'OTHER').toUpperCase(),
-                name: prod.name.toUpperCase(),
-                promo: prod.promo,
-                time: currentShiftTime(),
-                loc: activeLoc,
-                inv: 'INV-' + Math.floor(1000 + Math.random() * 9000),
-                qty: 1,
-                price: prod.price,
-                remarks: '',
-                billImg: ''
-            });
+        const target = event && event.currentTarget;
+        if (target) {
+            target.classList.add('pulse-anim');
+            setTimeout(() => target.classList.remove('pulse-anim'), 350);
         }
-
-        saveData();
-        renderProducts();
-        renderTodayTable();
-        renderSummary();
-        renderHistory();
-        showToast('+1 ' + prod.name.slice(0, 20));
+        openAddEntryModal(prod);
     }
 
     function renderTodayTable() {
@@ -1164,13 +1411,13 @@
             const billIcon = ent.billImg ? ' 📎' : '';
             const brandHeader = ent.brand ? `<div style="font-size:0.58rem;color:var(--blue);font-weight:800;">[${escapeHtml(ent.brand)}]</div>` : '';
             html += `<tr class="table-row-item" data-id="${ent.id}" style="cursor:pointer;" title="TAP TO EDIT ENTRY">
-                <td>${formatDateDisplay(activeDateKey)}<br><span style="font-size:0.6rem;color:var(--muted);font-weight:800;">${ent.time || 'SHIFT 1'} • ${ent.loc || 'DUBAI MALL'}</span></td>
-                <td><strong>${escapeHtml(ent.inv || '—')}</strong></td>
-                <td>${brandHeader}${escapeHtml(ent.name)}${promoTag}${billIcon}</td>
-                <td><strong>×${ent.qty}</strong></td>
-                <td>AED ${ent.price.toFixed(2)}</td>
-                <td><strong style="color:var(--blue);">AED ${lineTotal}</strong></td>
-                <td style="font-size:0.68rem;color:#43648b;">${escapeHtml(ent.remarks || '—')}</td>
+                <td data-label="DATE / TIME / LOCATION">${formatDateDisplay(activeDateKey)}<br><span style="font-size:0.68rem;color:var(--muted);font-weight:800;">${displayTime(ent.time || '09:00')} • ${escapeHtml(ent.loc || 'DUBAI MALL')}</span></td>
+                <td data-label="INVOICE"><strong>${escapeHtml(ent.inv || '—')}</strong></td>
+                <td data-label="DESCRIPTION">${brandHeader}${escapeHtml(ent.name)}${promoTag}${billIcon}</td>
+                <td data-label="QUANTITY"><strong>×${ent.qty}</strong></td>
+                <td data-label="UNIT PRICE">AED ${Number(ent.price || 0).toFixed(2)}</td>
+                <td data-label="TOTAL"><strong style="color:var(--blue);">AED ${lineTotal}</strong></td>
+                <td data-label="REMARKS" style="font-size:0.68rem;color:#43648b;">${escapeHtml(ent.remarks || '—')}</td>
             </tr>`;
         });
         todayTableBody.innerHTML = html;
@@ -1218,37 +1465,68 @@
                 if (timeB !== timeA) return timeB - timeA;
                 return b.localeCompare(a);
             });
-
         if (validDates.length === 0) {
             historyListEl.innerHTML = '<div class="empty-msg">NO SAVED HISTORY YET.</div>';
             return;
         }
-
         historyListEl.innerHTML = validDates.map((dKey) => {
             const obj = salesByDate[dKey];
             const { total, commission, count } = calcDateTotals(dKey);
             const sentMark = obj.sent ? ' ✅' : '';
             const detailRows = obj.entries.map(ent => `
-                <div class="h-line">
-                    <span><strong>[${escapeHtml(ent.loc || 'DUBAI MALL')}]</strong> ${escapeHtml(ent.name)} ×${ent.qty}</span>
-                    <span style="color:var(--blue);font-weight:900;">AED ${(ent.price * ent.qty).toFixed(2)}</span>
+                <div class="h-line" style="align-items:center;">
+                    <span style="flex:1;min-width:0;"><strong>[${escapeHtml(ent.loc || 'DUBAI MALL')}]</strong> ${escapeHtml(ent.name)} ×${ent.qty}<br><small>${displayTime(ent.time || '09:00')} • AED ${Number(ent.price || 0).toFixed(2)} each</small></span>
+                    <span style="color:var(--blue);font-weight:900;white-space:nowrap;">AED ${(ent.price * ent.qty).toFixed(2)}</span>
+                    <button type="button" class="btn btn-sm btn-outline history-entry-edit-btn" data-date="${dKey}" data-entry="${ent.id}" style="margin-left:0.3rem;">EDIT</button>
                 </div>
             `).join('');
-
-            return `<div class="history-item" onclick="document.getElementById('hdet-${dKey}').classList.toggle('open')">
+            return `<button type="button" class="history-item history-toggle-btn" data-date="${dKey}" aria-expanded="false">
                 <span class="history-date">${formatDateDisplay(dKey)}${sentMark}</span>
                 <span>${count} ITEMS</span>
                 <span class="history-total">AED ${total.toFixed(2)}</span>
                 <span class="history-comm">AMT ${commission.toFixed(2)}</span>
-            </div>
+            </button>
             <div class="history-detail" id="hdet-${dKey}">
                 ${detailRows}
                 <div class="history-actions">
-                    <button class="btn btn-sm btn-primary" onclick="activeDateKey='${dKey}';renderAll();document.querySelector('[data-tab=sell]').click();" style="flex:1;">✏️ EDIT DATE</button>
-                    <button class="btn btn-sm btn-danger" onclick="if(confirm('DELETE ${dKey}?')){delete salesByDate['${dKey}'];saveData();renderAll();}">🗑️ DELETE</button>
+                    <button type="button" class="btn btn-sm btn-primary history-edit-date-btn" data-date="${dKey}" style="flex:1;">✏️ OPEN DATE</button>
+                    <button type="button" class="btn btn-sm btn-danger history-delete-date-btn" data-date="${dKey}">🗑️ DELETE DATE</button>
                 </div>
             </div>`;
         }).join('');
+
+        historyListEl.querySelectorAll('.history-toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const detail = document.getElementById('hdet-' + btn.dataset.date);
+                const opened = detail.classList.toggle('open');
+                btn.setAttribute('aria-expanded', String(opened));
+            });
+        });
+        historyListEl.querySelectorAll('.history-edit-date-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                activeDateKey = btn.dataset.date;
+                renderAll();
+                document.querySelector('.nav-tab-btn[data-tab="sell"]').click();
+            });
+        });
+        historyListEl.querySelectorAll('.history-delete-date-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const date = btn.dataset.date;
+                if (!confirm('DELETE ALL ENTRIES FOR ' + formatDateDisplay(date) + '?')) return;
+                delete salesByDate[date];
+                saveData();
+                renderAll();
+                showToast('HISTORY DATE DELETED');
+            });
+        });
+        historyListEl.querySelectorAll('.history-entry-edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const date = btn.dataset.date;
+                const bucket = salesByDate[date];
+                const entry = bucket && bucket.entries.find(e => e.id === btn.dataset.entry);
+                if (entry) openEditModal(entry, date);
+            });
+        });
     }
 
     function renderLastSent() {
@@ -1261,35 +1539,80 @@
     }
 
     function renderSettings() {
-        if (!products.length) { settingsListEl.innerHTML = '<div class="empty-msg">NO MEDICINES ADDED YET.</div>'; return; }
-        settingsListEl.innerHTML = products.map((p, idx) => {
+        const query = settingsSearchQuery.trim().toLowerCase();
+        const catalogue = sortedProducts().filter(p => !query || String(p.name || '').toLowerCase().includes(query) || String(p.brand || '').toLowerCase().includes(query));
+        if (!catalogue.length) { settingsListEl.innerHTML = '<div class="empty-msg">NO CATALOGUE ITEMS MATCH YOUR SEARCH.</div>'; return; }
+        settingsListEl.innerHTML = catalogue.map((p) => {
             const thumb = p.img ? `<img src="${p.img}" alt="">` : `<span style="font-weight:900;">${getInitials(p.name)}</span>`;
-            return `<div class="setting-row" data-idx="${idx}">
-                <button type="button" class="setting-img-btn" title="UPLOAD PHOTO">${thumb}<span class="edit-lbl">EDIT</span></button>
-                <input type="text" class="inp-name" value="${escapeHtml(p.name)}" placeholder="MEDICINE NAME">
-                <input type="number" class="inp-price" value="${p.price}" step="0.5" min="0" placeholder="PRICE">
-                <label class="chk-label"><input type="checkbox" class="inp-promo" ${p.promo ? 'checked' : ''}> PROMO</label>
-                <button class="btn btn-sm btn-danger del-prod-btn" title="DELETE">✕</button>
+            return `<div class="setting-row" data-id="${p.id}">
+                <button type="button" class="setting-img-btn" title="UPLOAD OR CHANGE PHOTO">${thumb}<span class="edit-lbl">PHOTO</span></button>
+                <div class="setting-fields">
+                    <input type="text" class="inp-brand" value="${escapeHtml(p.brand || '')}" placeholder="BRAND / GROUP">
+                    <input type="text" class="inp-name" value="${escapeHtml(p.name)}" placeholder="PRODUCT NAME">
+                    <div class="setting-bottom">
+                        <input type="number" class="inp-price" value="${Number(p.price || 0)}" step="0.01" min="0" placeholder="PRICE" aria-label="Price in AED">
+                        <label class="chk-label"><input type="checkbox" class="inp-promo" ${p.promo ? 'checked' : ''}> PROMO</label>
+                        <button type="button" class="btn btn-sm btn-danger del-prod-btn" title="DELETE PRODUCT">DELETE</button>
+                    </div>
+                </div>
             </div>`;
         }).join('');
 
         settingsListEl.querySelectorAll('.setting-row').forEach(row => {
-            const idx = parseInt(row.dataset.idx, 10);
+            const productId = row.dataset.id;
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
             const imgBtn = row.querySelector('.setting-img-btn');
+            const brandInp = row.querySelector('.inp-brand');
             const nameInp = row.querySelector('.inp-name');
             const priceInp = row.querySelector('.inp-price');
             const promoChk = row.querySelector('.inp-promo');
             const delBtn = row.querySelector('.del-prod-btn');
 
-            imgBtn.addEventListener('click', () => { imgUploadTargetIdx = idx; productImageInput.value = ''; productImageInput.click(); });
-            nameInp.addEventListener('change', () => { products[idx].name = (nameInp.value.trim() || 'MEDICINE').toUpperCase(); saveData(); renderAll(); });
-            priceInp.addEventListener('change', () => { products[idx].price = Math.max(0, parseFloat(priceInp.value) || 0); saveData(); renderAll(); });
-            promoChk.addEventListener('change', () => { products[idx].promo = promoChk.checked; saveData(); renderAll(); });
+            imgBtn.addEventListener('click', () => {
+                imgUploadTargetIdx = products.findIndex(p => p.id === productId);
+                productImageInput.value = '';
+                productImageInput.click();
+            });
+            const saveProductFields = () => {
+                const nextName = nameInp.value.trim();
+                const nextBrand = brandInp.value.trim();
+                const nextPrice = Number(priceInp.value);
+                if (!nextName) { showToast('PRODUCT NAME CANNOT BE EMPTY'); nameInp.focus(); return; }
+                if (!Number.isFinite(nextPrice) || nextPrice < 0) { showToast('ENTER A VALID PRODUCT PRICE'); priceInp.focus(); return; }
+                product.name = nextName.toUpperCase();
+                product.brand = (nextBrand || 'GENERAL').toUpperCase();
+                product.price = nextPrice;
+                saveData();
+                const activeQuery = settingsSearchQuery.trim().toLowerCase();
+                if (activeQuery && !product.name.toLowerCase().includes(activeQuery) && !product.brand.toLowerCase().includes(activeQuery)) {
+                    renderSettings();
+                }
+                const orderedRows = Array.from(settingsListEl.querySelectorAll('.setting-row')).sort((a, b) => {
+                    const pa = products.find(p => p.id === a.dataset.id);
+                    const pb = products.find(p => p.id === b.dataset.id);
+                    return String(pa?.name || '').localeCompare(String(pb?.name || ''), undefined, { sensitivity: 'base' });
+                });
+                orderedRows.forEach(item => settingsListEl.insertBefore(item, settingsListEl.querySelector('.setting-row:last-of-type')?.nextSibling || null));
+                renderDashboardTiles();
+                renderProducts();
+                renderTodayTable();
+                renderSummary();
+                renderHistory();
+                renderLastSent();
+                renderPromoCount();
+                showToast('CATALOGUE UPDATED');
+            };
+            nameInp.addEventListener('change', saveProductFields);
+            brandInp.addEventListener('change', saveProductFields);
+            priceInp.addEventListener('change', saveProductFields);
+            promoChk.addEventListener('change', () => { product.promo = promoChk.checked; saveData(); renderDashboardTiles(); renderProducts(); renderPromoCount(); renderTodayTable(); renderHistory(); renderSummary(); });
             delBtn.addEventListener('click', () => {
-                if (confirm('DELETE "' + products[idx].name + '"?')) {
-                    products.splice(idx, 1);
+                if (confirm('DELETE "' + product.name + '" FROM THE CATALOGUE?')) {
+                    products = products.filter(p => p.id !== productId);
                     saveData();
                     renderAll();
+                    showToast('PRODUCT REMOVED FROM CATALOGUE');
                 }
             });
         });
@@ -1298,30 +1621,13 @@
     document.getElementById('addCustomEntryBtn').addEventListener('click', () => {
         const name = prompt('ENTER CUSTOM TEMPORARY ITEM NAME:');
         if (!name || !name.trim()) return;
-        const price = parseFloat(prompt('ENTER PRICE IN AED:', '100')) || 0;
-        
-        const dateObj = salesByDate[activeDateKey] || { entries: [], sent: false };
-        dateObj.updatedAt = Date.now();
-        salesByDate[activeDateKey] = dateObj;
-        
-        dateObj.entries.push({
-            id: uid(),
-            prodId: uid(),
-            brand: 'CUSTOM',
-            name: name.trim().toUpperCase(),
-            promo: false,
-            time: currentShiftTime(),
-            loc: getActiveDashboardLoc(),
-            inv: 'INV-' + Math.floor(1000 + Math.random() * 9000),
-            qty: 1,
-            price: price,
-            remarks: 'MANUAL ENTRY',
-            billImg: ''
-        });
-
-        saveData();
-        renderAll();
-        showToast('CUSTOM ITEM ADDED');
+        const priceRaw = prompt('ENTER UNIT PRICE IN AED:', '100');
+        if (priceRaw === null) return;
+        const price = Number(priceRaw);
+        if (!Number.isFinite(price) || price < 0) { showToast('PLEASE ENTER A VALID PRICE'); return; }
+        openAddEntryModal({ id: null, brand: 'CUSTOM', name: name.trim().toUpperCase(), price, promo: false });
+        activeModalProdId = null;
+        catalogSyncWrap.style.display = 'none';
     });
 
     addNewProdSubmitBtn.addEventListener('click', () => {
@@ -1498,6 +1804,7 @@
     });
 
     searchInput.addEventListener('input', () => { searchQuery = searchInput.value; renderProducts(); });
+    settingsSearchInput.addEventListener('input', () => { settingsSearchQuery = settingsSearchInput.value; renderSettings(); });
     promoFilterBtn.addEventListener('click', () => { promoOnly = !promoOnly; promoFilterBtn.classList.toggle('on', promoOnly); renderProducts(); });
 
     document.getElementById('clearDayBtn').addEventListener('click', () => {
@@ -1507,8 +1814,8 @@
         }
     });
 
-    document.getElementById('exportBtn').addEventListener('click', exportTodayImage);
-    document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+    document.getElementById('exportBtn').addEventListener('click', openRangeExportForActiveDate);
+    document.getElementById('exportCsvBtn').addEventListener('click', openRangeExportForActiveDate);
 
     document.getElementById('markSentBtn').addEventListener('click', () => {
         const entries = getActiveDateEntries();
