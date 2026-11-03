@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>VYSAKH SALES TRACKER</title>
+<style>
+    :root {
+        --bg: #f2f5fa;
+        --navy: #0a1931;
+        --navy-light: #162a4a;
+        --blue: #007aff;
+        --green: #20a766;
+        --red: #ff3b30;
+        --card: #ffffff;
+        --border: #e5ebf3;
+        --text: #1c2738;
+        --muted: #7f8ea3;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,sans-serif; -webkit-tap-highlight-color:transparent; }
+    body { background:var(--bg); min-height:100vh; padding:calc(0.75rem + env(safe-area-inset-top)) 0.65rem calc(9rem + env(safe-area-inset-bottom)); display:flex; flex-direction:column; align-items:center; color:var(--text); animation: fadeInBody 0.3s ease; }
+    @keyframes fadeInBody { from{opacity:0;} to{opacity:1;} }
+    .app { max-width:520px; width:100%; position:relative; }
+
+    /* PIN LOCK OVERLAY */
+    .pin-overlay { position:fixed; inset:0; background:linear-gradient(160deg,#08152b 0%,#12284c 100%); z-index:2000; display:none; flex-direction:column; align-items:center; justify-content:center; padding:1.5rem; color:white; }
+    .pin-overlay.active { display:flex; animation: fadeInBody 0.2s ease; }
+    .pin-title { font-size:1.25rem; font-weight:800; letter-spacing:0.5px; margin-bottom:0.3rem; }
+    .pin-sub { font-size:0.78rem; opacity:0.75; margin-bottom:1.6rem; text-align:center; }
+    .pin-dots { display:flex; gap:0.9rem; margin-bottom:2.2rem; }
+    .pin-dot { width:15px; height:15px; border-radius:50%; border:2px solid rgba(255,255,255,0.45); transition:0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .pin-dot.filled { background:#4ade80; border-color:#4ade80; transform:scale(1.2); }
+    .pin-dot.error { background:var(--red); border-color:var(--red); animation:shake 0.3s; }
+    @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+    .pin-pad { display:grid; grid-template-columns:repeat(3, 74px); gap:1rem; }
+    .pin-key { width:74px; height:74px; border-radius:50%; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.08); color:white; font-size:1.55rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; user-select:none; backdrop-filter:blur(8px); transition:transform 0.1s, background 0.15s; }
+    .pin-key:active { background:rgba(255,255,255,0.28); transform:scale(0.92); }
+    .pin-key.action { font-size:0.85rem; font-weight:700; background:transparent; border-color:transparent; opacity:0.85; }
+
+    /* MODALS */
+    .modal-overlay { position:fixed; inset:0; background:rgba(10,25,49,0.7); backdrop-filter:blur(6px); z-index:1500; display:none; align-items:center; justify-content:center; padding:1rem; }
+    .modal-overlay.active { display:flex; animation: fadeInBody 0.2s ease; }
+    .modal-card { background:white; width:100%; max-width:420px; border-radius:1.2rem; padding:1.2rem; box-shadow:0 12px 32px rgba(10,25,49,0.25); border:1px solid var(--border); max-height:90vh; overflow-y:auto; }
+    .modal-title { font-size:1rem; font-weight:800; color:var(--navy); margin-bottom:0.8rem; display:flex; justify-content:space-between; align-items:center; }
+    .modal-group { margin-bottom:0.7rem; }
+    .modal-group label { font-size:0.72rem; font-weight:700; color:#43648b; display:block; margin-bottom:0.25rem; }
+    .modal-group input, .modal-group textarea, .modal-group select { width:100%; border:1.5px solid #d8e2ef; border-radius:0.75rem; padding:0.5rem 0.75rem; font-size:0.85rem; color:var(--text); background:#f9fbfe; outline:none; font-weight:600; }
+    .modal-group input:focus, .modal-group textarea:focus, .modal-group select:focus { border-color:var(--blue); background:white; box-shadow:0 0 0 3px rgba(0,122,255,0.12); }
+
+    /* LOCATION SELECTOR BAR */
+    .loc-bar { display:flex; gap:0.4rem; background:white; padding:0.35rem; border-radius:0.8rem; border:1px solid var(--border); margin-bottom:0.8rem; }
+    .loc-tab { flex:1; padding:0.5rem 0.1rem; text-align:center; font-size:0.65rem; font-weight:900; color:#43648b; border-radius:0.5rem; cursor:pointer; transition:all 0.15s; letter-spacing:0.3px; }
+    .loc-tab.active { background:var(--navy); color:white; box-shadow:0 3px 8px rgba(10,25,49,0.2); }
+
+    /* TOPBAR & DASHBOARD DATE BAR */
+    .topbar { background:linear-gradient(135deg,var(--navy),var(--navy-light)); color:white; border-radius:1.4rem; padding:0.85rem 1rem; margin-bottom:0.8rem; box-shadow:0 8px 20px rgba(10,25,49,0.22); }
+    .topbar-row1 { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.65rem; }
+    .topbar h1 { font-size:1.1rem; font-weight:800; letter-spacing:-0.3px; display:flex; align-items:center; gap:0.4rem; }
+    .topbar h1 span { background:var(--green); font-size:0.62rem; padding:0.18rem 0.55rem; border-radius:20px; letter-spacing:0.5px; }
+    .lock-btn { background:rgba(255,255,255,0.14); border:none; color:white; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:0.9rem; display:flex; align-items:center; justify-content:center; }
+
+    .date-bar { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.12); border-radius:0.95rem; padding:0.35rem 0.5rem; gap:0.35rem; }
+    .date-nav-btn { background:rgba(255,255,255,0.16); border:none; color:white; width:30px; height:30px; border-radius:0.65rem; font-size:0.8rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .date-picker-wrap { flex:1; display:flex; align-items:center; justify-content:center; gap:0.35rem; position:relative; }
+    .date-input { background:transparent; border:none; color:white; font-size:0.82rem; font-weight:700; text-align:center; cursor:pointer; outline:none; color-scheme:dark; }
+    .today-jump-btn { background:var(--green); color:white; border:none; padding:0.28rem 0.6rem; border-radius:0.6rem; font-size:0.68rem; font-weight:800; cursor:pointer; display:none; }
+    .today-jump-btn.show { display:inline-block; }
+
+    /* DASHBOARD ICON TILES BAR */
+    .dashboard-tiles { display:flex; gap:0.5rem; overflow-x:auto; padding-bottom:0.4rem; margin-bottom:0.4rem; scrollbar-width:none; }
+    .dashboard-tiles::-webkit-scrollbar { display:none; }
+    .dash-tile { background:white; border:1.5px solid var(--border); border-radius:1rem; padding:0.45rem 0.55rem; min-width:76px; max-width:82px; display:flex; flex-direction:column; align-items:center; text-align:center; cursor:pointer; flex-shrink:0; box-shadow:0 3px 10px rgba(10,25,49,0.04); }
+    .dash-tile:active { transform:scale(0.92); background:#f4f8fc; border-color:var(--blue); }
+    .dash-tile-img { width:38px; height:38px; border-radius:0.7rem; background:#edf3fc; display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:0.25rem; font-size:1.3rem; border:1px solid rgba(0,0,0,0.03); }
+    .dash-tile-img img { width:100%; height:100%; object-fit:cover; }
+    .dash-tile-name { font-size:0.62rem; font-weight:700; color:var(--text); line-height:1.15; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; width:100%; }
+    
+    .dash-tile-placeholder-text { font-size:1rem; font-weight:900; color:#839bb9; letter-spacing:0.5px; }
+    .pimg-placeholder-text { font-size:1.6rem; font-weight:900; color:#839bb9; letter-spacing:1px; }
+
+    /* BOTTOM FLOATING PAGE FLIP NAVIGATION BAR */
+    .bottom-nav-bar { position:fixed; bottom:4.2rem; left:50%; transform:translateX(-50%); width:calc(100% - 1.3rem); max-width:500px; background:rgba(10,25,49,0.95); backdrop-filter:blur(12px); border-radius:1.2rem; padding:0.35rem; display:flex; gap:0.3rem; z-index:45; box-shadow:0 6px 20px rgba(10,25,49,0.25); border:1px solid rgba(255,255,255,0.15); }
+    .nav-tab-btn { flex:1; padding:0.55rem 0.3rem; border:none; background:transparent; border-radius:0.9rem; font-size:0.75rem; font-weight:700; color:#a3b8d1; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.3rem; transition:all 0.2s ease; }
+    .nav-tab-btn.active { background:var(--blue); color:white; box-shadow:0 2px 8px rgba(0,122,255,0.3); }
+
+    .panel { display:none; }
+    .panel.active { display:block; animation:fadeInPanel 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes fadeInPanel { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+    .card { background:var(--card); border-radius:1.4rem; padding:0.95rem; box-shadow:0 6px 18px rgba(10,25,49,0.06); margin-bottom:0.8rem; border:1px solid var(--border); }
+
+    /* SEARCH */
+    .search-wrap { display:flex; gap:0.4rem; margin-bottom:0.75rem; }
+    .search-wrap input[type=text] { flex:1; border:1.5px solid #d5e0ee; border-radius:0.85rem; padding:0.55rem 0.85rem; font-size:0.82rem; color:var(--text); background:#f8fafd; font-weight:700; }
+    .filter-toggle { border:1.5px solid #d5e0ee; background:white; border-radius:0.85rem; padding:0.55rem 0.75rem; font-size:0.72rem; font-weight:800; color:#43648b; cursor:pointer; white-space:nowrap; }
+    .filter-toggle.on { background:var(--green); color:white; border-color:var(--green); }
+
+    /* PRODUCT GRID */
+    .grid-products { display:grid; grid-template-columns:repeat(3, 1fr); gap:0.55rem; }
+    .product-tile { background:#f9fbff; border:1.5px solid #e1eaf5; border-radius:1.1rem; padding:0.45rem; cursor:pointer; transition:transform 0.12s, background 0.15s; display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; user-select:none; overflow:hidden; box-shadow:0 2px 6px rgba(10,25,49,0.04); }
+    .product-tile.promo { border-color:#74d3a3; background:#f4fbf7; }
+    .product-tile:active { transform:scale(0.90); background:#d8e8fc; border-color:var(--blue); }
+    .product-tile.pulse-anim { animation: tilePulse 0.35s ease; }
+    @keyframes tilePulse { 0%{transform:scale(1);} 50%{transform:scale(0.88); background:#b8d6fc;} 100%{transform:scale(1);} }
+
+    .pimg-box { width:100%; aspect-ratio:1/1; border-radius:0.8rem; background:linear-gradient(135deg,#e8f0fe,#f3f7fc); display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:0.4rem; position:relative; border:1px solid rgba(0,0,0,0.03); }
+    .pimg-box img { width:100%; height:100%; object-fit:cover; display:block; }
+    .product-tile .pname { font-size:0.71rem; font-weight:800; color:var(--text); line-height:1.2; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:1.72rem; margin-bottom:0.2rem; }
+    .product-tile .pprice { font-size:0.68rem; font-weight:900; color:var(--blue); background:rgba(0,122,255,0.09); padding:0.14rem 0.42rem; border-radius:10px; }
+    .product-tile .pbadge { position:absolute; top:0.35rem; right:0.35rem; font-size:0.5rem; font-weight:800; background:var(--green); color:white; padding:0.12rem 0.36rem; border-radius:20px; z-index:2; }
+    .product-tile .qty-tap-badge { position:absolute; top:0.35rem; left:0.35rem; font-size:0.62rem; font-weight:900; background:var(--navy); color:white; min-width:20px; height:20px; padding:0 5px; border-radius:10px; display:flex; align-items:center; justify-content:center; z-index:2; }
+
+    .floating-plus { position:absolute; font-size:1.2rem; font-weight:900; color:var(--green); pointer-events:none; z-index:100; animation: floatUpAndFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    @keyframes floatUpAndFade { 0%{opacity:1; transform:translateY(0) scale(0.8);} 100%{opacity:0; transform:translateY(-55px) scale(1.3);} }
+
+    /* TABLE VIEW */
+    .table-container { width:100%; overflow-x:auto; margin-top:0.4rem; }
+    .sales-table { width:100%; border-collapse:collapse; font-size:0.72rem; text-align:left; }
+    .sales-table th { background:#eef3fa; color:var(--navy); padding:0.5rem 0.4rem; font-weight:900; white-space:nowrap; border-bottom:2px solid #d5e0ee; }
+    .sales-table td { padding:0.5rem 0.4rem; border-bottom:1px solid #eef2f8; color:var(--text); vertical-align:middle; font-weight:700; }
+    .sales-table tr:hover { background:#f7faff; }
+
+    .empty-msg { text-align:center; color:var(--muted); font-size:0.8rem; font-weight:700; padding:1.1rem 0; }
+
+    /* SUMMARY BOX */
+    .sticky-summary { position:fixed; bottom:0; left:0; right:0; background:rgba(10,25,49,0.96); backdrop-filter:blur(12px); color:white; padding:0.6rem 1rem calc(0.5rem + env(safe-area-inset-bottom)); box-shadow:0 -6px 22px rgba(10,25,49,0.3); z-index:40; display:none; }
+    .sticky-summary.show { display:block; }
+    .sticky-inner { max-width:520px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:0.5rem; }
+    .sticky-summary .lbl, .summary-box .lbl { font-size:0.64rem; opacity:0.75; font-weight:700; }
+    .sticky-summary .val, .summary-box .val { font-size:1.05rem; font-weight:900; }
+    .sticky-summary .commission, .summary-box .commission { font-size:0.68rem; background:var(--green); padding:0.22rem 0.65rem; border-radius:20px; font-weight:900; }
+    .summary-box { background:linear-gradient(135deg,var(--navy),var(--navy-light)); color:white; border-radius:1.15rem; padding:0.85rem 1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; }
+
+    /* BUTTONS */
+    .btn { border:none; border-radius:0.95rem; padding:0.7rem 1rem; font-size:0.8rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:0.4rem; transition:transform 0.12s; }
+    .btn:active { transform:scale(0.96); }
+    .btn-primary { background:var(--blue); color:white; }
+    .btn-green { background:var(--green); color:white; }
+    .btn-outline { background:white; color:var(--text); border:1.5px solid #d0dae8; }
+    .btn-danger { background:var(--red); color:white; }
+    .btn-sm { padding:0.35rem 0.6rem; font-size:0.68rem; border-radius:0.65rem; }
+    .btn-block { width:100%; }
+
+    /* SETTINGS & PRODUCT ADDITION FORM */
+    .add-product-card { background:#f4f8fc; border:1.5px dashed var(--blue); border-radius:1rem; padding:0.85rem; margin-bottom:1rem; }
+    .setting-row { display:flex; align-items:center; gap:0.42rem; padding:0.6rem 0; border-bottom:1px solid #eef2f8; flex-wrap:wrap; }
+    .setting-img-btn { width:44px; height:44px; border-radius:0.75rem; border:1.5px dashed #b0c4de; background:#f5f9ff; cursor:pointer; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; position:relative; font-size:0.85rem; font-weight:900; color:#839bb9; }
+    .setting-img-btn img { width:100%; height:100%; object-fit:cover; }
+    .setting-img-btn span.edit-lbl { font-size:0.48rem; position:absolute; bottom:0; left:0; right:0; background:rgba(10,25,49,0.72); color:white; text-align:center; padding:1px 0; font-weight:800; }
+    .setting-row input[type=text], .setting-row input[type=number], .setting-row input[type=password] { border:1.5px solid #d8e2ef; border-radius:0.6rem; padding:0.42rem 0.55rem; font-size:0.78rem; color:var(--text); background:#f9fbfe; font-weight:700; }
+    .setting-row .inp-name { flex:2; min-width:110px; }
+    .setting-row .inp-price { width:70px; }
+    .setting-row .inp-pct { width:72px; }
+    .chk-label { display:flex; align-items:center; gap:0.25rem; font-size:0.72rem; font-weight:800; color:#43648b; white-space:nowrap; cursor:pointer; }
+
+    /* HISTORY */
+    .history-item { display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0.2rem; border-bottom:1px solid #eef2f8; font-size:0.78rem; flex-wrap:wrap; gap:0.3rem; cursor:pointer; }
+    .history-date { font-weight:800; color:var(--navy); }
+    .history-total { font-weight:900; color:var(--blue); }
+    .history-comm { color:var(--green); font-weight:800; }
+    .history-detail { padding:0.55rem 0.65rem 0.75rem; font-size:0.73rem; color:#43648b; line-height:1.6; background:#f7faff; border-radius:0.75rem; margin:0 0.1rem 0.5rem; display:none; border:1px solid #e3ebf6; font-weight:700; }
+    .history-detail.open { display:block; }
+    .history-detail .h-line { display:flex; justify-content:space-between; gap:0.5rem; padding:0.25rem 0; border-bottom:1px dashed #e2eaf5; }
+    .history-actions { display:flex; gap:0.45rem; margin-top:0.55rem; padding-top:0.45rem; border-top:1px solid #e2eaf5; }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:calc(7rem + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(80px); background:var(--navy); color:white; padding:0.65rem 1.25rem; border-radius:30px; font-size:0.78rem; font-weight:800; box-shadow:0 8px 24px rgba(10,25,49,0.32); transition:transform 0.25s, opacity 0.25s; z-index:999; opacity:0; pointer-events:none; display:flex; align-items:center; gap:0.6rem; white-space:nowrap; }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; pointer-events:auto; }
+    .toast button { background:var(--green); color:white; border:none; padding:0.28rem 0.65rem; border-radius:14px; font-size:0.7rem; font-weight:800; cursor:pointer; }
+
+    .small-note { font-size:0.68rem; font-weight:700; color:var(--muted); margin-top:0.4rem; text-align:center; }
+    @media (max-width:350px) { .grid-products { grid-template-columns:repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+
+<!-- PIN LOCK OVERLAY -->
+<div class="pin-overlay" id="pinOverlay">
+    <div style="font-size:2.2rem;margin-bottom:0.4rem;">🔒</div>
+    <div class="pin-title">VYSAKH TRACKER</div>
+    <div class="pin-sub" id="pinSubMsg">Enter 4-digit PIN to unlock</div>
+    <div class="pin-dots" id="pinDots">
+        <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div class="pin-pad">
+        <button class="pin-key" data-k="1">1</button><button class="pin-key" data-k="2">2</button><button class="pin-key" data-k="3">3</button>
+        <button class="pin-key" data-k="4">4</button><button class="pin-key" data-k="5">5</button><button class="pin-key" data-k="6">6</button>
+        <button class="pin-key" data-k="7">7</button><button class="pin-key" data-k="8">8</button><button class="pin-key" data-k="9">9</button>
+        <button class="pin-key action" data-k="clear">CLR</button><button class="pin-key" data-k="0">0</button><button class="pin-key action" data-k="del">⌫</button>
+    </div>
+</div>
+
+<!-- EDIT / ADD ENTRY MODAL -->
+<div class="modal-overlay" id="quickModal">
+    <div class="modal-card">
+        <div class="modal-title">
+            <span id="modalProdTitle">Edit Entry</span>
+            <button class="btn btn-sm btn-outline" id="closeModalBtn" style="padding:0.2rem 0.5rem;">✕</button>
+        </div>
+        <div style="background:#eef3fa;border-radius:0.6rem;padding:0.4rem 0.6rem;font-size:0.75rem;font-weight:900;color:var(--navy);margin-bottom:0.7rem;text-align:center;">
+            📅 DATE: <span id="modalActiveDateDisplay" style="color:var(--blue);"></span>
+        </div>
+        
+        <!-- LOCATION SELECTOR IN MODAL -->
+        <div class="modal-group">
+            <label>Location</label>
+            <div class="loc-bar" id="modalLocBar" style="margin-bottom:0;">
+                <div class="loc-tab active" data-loc="DUBAI MALL">DUBAI MALL</div>
+                <div class="loc-tab" data-loc="RESIDENCE">RESIDENCE</div>
+                <div class="loc-tab" data-loc="IBN">IBN</div>
+            </div>
+        </div>
+
+        <div class="modal-group">
+            <label>Invoice No (INV)</label>
+            <input type="text" id="modalInvInput" placeholder="e.g. INV-001">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+            <div class="modal-group">
+                <label>Quantity</label>
+                <input type="number" id="modalQtyInput" min="1" step="1" value="1">
+            </div>
+            <div class="modal-group">
+                <label>Price (AED)</label>
+                <input type="number" id="modalPriceInput" step="0.5" min="0">
+            </div>
+        </div>
+        <div class="modal-group">
+            <label>Remarks / Discrepancy Note</label>
+            <textarea id="modalRemarksInput" rows="2" placeholder="TYPE REMARKS HERE..."></textarea>
+        </div>
+        <div class="modal-group">
+            <label>Attach Bill Copy (Image)</label>
+            <input type="file" id="modalBillInput" accept="image/*" style="font-size:0.75rem;padding:0.3rem;">
+            <div id="billPreviewContainer" style="margin-top:0.3rem;font-size:0.68rem;color:var(--green);font-weight:800;"></div>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+            <button class="btn btn-primary btn-block" id="saveModalBtn">CONFIRM & SAVE</button>
+            <button class="btn btn-danger btn-sm" id="deleteModalItemBtn" style="display:none;">REMOVE</button>
+        </div>
+    </div>
+</div>
+
+<!-- MULTI-DATE EXPORT MODAL -->
+<div class="modal-overlay" id="rangeExportModal">
+    <div class="modal-card">
+        <div class="modal-title">
+            <span>EXPORT MULTI-DATE REPORT</span>
+            <button class="btn btn-sm btn-outline" id="closeRangeModalBtn" style="padding:0.2rem 0.5rem;">✕</button>
+        </div>
+        <div class="modal-group">
+            <label>SELECT DATE RANGE</label>
+            <select id="rangeSelect">
+                <option value="last_sent">SINCE LAST SENT DATE TO TODAY</option>
+                <option value="this_month">THIS MONTH (1ST TO TODAY)</option>
+                <option value="custom">CUSTOM DATE RANGE</option>
+            </select>
+        </div>
+        <div id="customDateRow" style="display:none; grid-template-columns:1fr 1fr; gap:0.5rem;">
+            <div class="modal-group">
+                <label>FROM DATE</label>
+                <input type="date" id="rangeStartDate">
+            </div>
+            <div class="modal-group">
+                <label>TO DATE</label>
+                <input type="date" id="rangeEndDate">
+            </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+            <button class="btn btn-primary btn-block" id="rangeExportCsvBtn">📊 EXPORT CSV</button>
+            <button class="btn btn-green btn-block" id="rangeExportImgBtn">📸 EXPORT IMAGE</button>
+        </div>
+    </div>
+</div>
+
+<div class="app">
+    <div class="topbar">
+        <div class="topbar-row1">
+            <h1>VYSAKH <span>SALES</span></h1>
+            <button class="lock-btn" id="lockNowBtn" title="Lock App">🔒</button>
+        </div>
+        <div class="date-bar">
+            <button class="date-nav-btn" id="prevDayBtn">◀</button>
+            <div class="date-picker-wrap">
+                <span>📅</span>
+                <input type="date" class="date-input" id="activeDatePicker">
+                <button class="today-jump-btn" id="jumpTodayBtn">TODAY</button>
+            </div>
+            <button class="date-nav-btn" id="nextDayBtn">▶</button>
+        </div>
+    </div>
+
+    <!-- SELL / DASHBOARD TAB -->
+    <div class="panel active" id="panel-sell">
+        
+        <!-- DASHBOARD LOCATION SELECTOR -->
+        <div class="loc-bar" id="dashboardLocBar">
+            <div class="loc-tab active" data-loc="DUBAI MALL">DUBAI MALL</div>
+            <div class="loc-tab" data-loc="RESIDENCE">RESIDENCE</div>
+            <div class="loc-tab" data-loc="IBN">IBN</div>
+        </div>
+
+        <div class="dashboard-tiles" id="dashboardTiles"></div>
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+                <div style="font-size:0.88rem;font-weight:900;color:var(--navy);">⚡ ONE-TAP QUICK ADD (+1)</div>
+                <div style="font-size:0.68rem;color:var(--muted);font-weight:800;" id="promoCount"></div>
+            </div>
+            <div class="search-wrap">
+                <input type="text" id="searchInput" placeholder="SEARCH MEDICINE…">
+                <button class="filter-toggle" id="promoFilterBtn">PROMO</button>
+            </div>
+            <div class="grid-products" id="productGrid"></div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;gap:0.4rem;flex-wrap:wrap;">
+                <div style="font-size:0.88rem;font-weight:900;color:var(--navy);" id="salesCardTitle">SALES FOR TODAY</div>
+                <div style="display:flex;gap:0.35rem;">
+                    <button class="btn btn-sm btn-outline" id="clearDayBtn" style="color:var(--red);border-color:#ffd5d5;">CLEAR DATE</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="sales-table" id="salesTable">
+                    <thead>
+                        <tr>
+                            <th>DATE / TIME / LOC</th>
+                            <th>INV</th>
+                            <th>DESCRIPTION</th>
+                            <th>QTY</th>
+                            <th>PRICE</th>
+                            <th>TOTAL</th>
+                            <th>REMARKS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="todayTableBody">
+                        <tr><td colspan="7" class="empty-msg">NO SALES FOR THIS DATE.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="summary-box" style="margin-top:0.8rem;">
+                <div>
+                    <div class="lbl">TOTAL</div>
+                    <div class="val" id="todayTotal">0.00</div>
+                </div>
+                <div>
+                    <div class="lbl">AMT</div>
+                    <div class="val" id="todayCommission" style="color:#6ee7b7;">0.00</div>
+                </div>
+                <div class="commission" id="commissionPctBadge">10%</div>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.4rem;">
+            <button class="btn btn-green btn-block" id="exportBtn" style="flex:2;">📸 EXPORT IMAGE</button>
+            <button class="btn btn-outline btn-block" id="exportCsvBtn" style="flex:1;background:white;color:var(--navy);border-color:var(--border);">📊 EXPORT CSV</button>
+        </div>
+        <div class="small-note">DOWNLOADS SUMMARY (GROUPED BY LOCATION)</div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div class="panel" id="panel-history">
+        <div class="card">
+            <button class="btn btn-outline btn-block" id="openRangeModalBtn" style="margin-bottom:0.8rem;border-color:var(--blue);color:var(--blue);">📊 EXPORT MULTI-DATE REPORT</button>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+                <div style="font-size:0.88rem;font-weight:900;color:var(--navy);">📅 ALL SAVED DATES (SORTED)</div>
+            </div>
+            <div id="historyList"></div>
+        </div>
+        <div class="card">
+            <div style="font-size:0.88rem;font-weight:900;color:var(--navy);margin-bottom:0.45rem;">📊 LAST SENT SUMMARY</div>
+            <div id="lastSentBox" style="font-size:0.78rem;color:#2b3e5c;line-height:1.65;font-weight:700;">
+                <div>NO DETAILS SENT YET.</div>
+            </div>
+            <button class="btn btn-primary btn-block" style="margin-top:0.8rem;" id="markSentBtn">✅ MARK SELECTED DATE AS SENT</button>
+        </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="panel" id="panel-settings">
+        <!-- DEDICATED ADD PRODUCT FORM FIELD -->
+        <div class="card">
+            <div style="font-size:0.88rem;font-weight:900;color:var(--navy);margin-bottom:0.3rem;">➕ ADD NEW MEDICINE</div>
+            <div style="font-size:0.68rem;font-weight:700;color:var(--muted);margin-bottom:0.75rem;">FILL IN DETAILS TO ADD A BRAND NEW ITEM.</div>
+            <div class="add-product-card">
+                <div class="modal-group">
+                    <label>BRAND / GROUP NAME</label>
+                    <input type="text" id="newProdBrandInput" placeholder="e.g. KEENVITA">
+                </div>
+                <div class="modal-group">
+                    <label>PRODUCT DESCRIPTION</label>
+                    <input type="text" id="newProdNameInput" placeholder="e.g. OMEGA 3 2000MG 120 TAB">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+                    <div class="modal-group">
+                        <label>PRICE (AED)</label>
+                        <input type="number" id="newProdPriceInput" step="0.5" min="0" placeholder="150.00">
+                    </div>
+                    <div class="modal-group" style="display:flex;flex-direction:column;justify-content:flex-end;">
+                        <label class="chk-label" style="padding:0.5rem 0;">
+                            <input type="checkbox" id="newProdPromoChk" style="width:16px;height:16px;"> IS PROMO ITEM?
+                        </label>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" id="addNewProdSubmitBtn" style="margin-top:0.4rem;">SAVE TO CATALOG</button>
+            </div>
+            <div style="margin-top:0.8rem;">
+                <button class="btn btn-outline btn-block" id="addCustomEntryBtn" style="font-size:0.75rem;padding:0.6rem;">+ ADD CUSTOM TEMPORARY ITEM FOR TODAY</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                <div>
+                    <div style="font-size:0.88rem;font-weight:900;color:var(--navy);">⚙️ EXISTING MASTER MEDICINES</div>
+                    <div style="font-size:0.66rem;font-weight:700;color:var(--muted);">TAP EMPTY BOX TO UPLOAD PHOTO OR EDIT</div>
+                </div>
+            </div>
+            <div id="settingsList"></div>
+            <div class="setting-row" style="border-top:2px solid #e9edf4;margin-top:0.5rem;padding-top:0.7rem;">
+                <label class="chk-label">GLOBAL AMT %</label>
+                <input type="number" id="globalCommission" class="inp-pct" min="0" max="100" step="0.5" value="10">
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-size:0.88rem;font-weight:900;color:var(--navy);margin-bottom:0.5rem;">🔐 PIN LOCK SECURITY</div>
+            <div class="setting-row" style="border-bottom:none;padding:0.2rem 0;">
+                <label class="chk-label">
+                    <input type="checkbox" id="pinEnabledChk" checked> ENABLE PIN LOCK
+                </label>
+                <div style="display:flex;align-items:center;gap:0.35rem;margin-left:auto;">
+                    <span style="font-size:0.72rem;color:var(--muted);font-weight:800;">PIN:</span>
+                    <input type="password" id="pinCodeInput" maxlength="4" pattern="[0-9]*" inputmode="numeric" placeholder="1234" style="width:74px;text-align:center;font-weight:900;letter-spacing:2px;">
+                    <button class="btn btn-sm btn-primary" id="savePinBtn">SAVE PIN</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="font-size:0.88rem;font-weight:900;color:var(--navy);margin-bottom:0.5rem;">💾 DATA & BACKUP</div>
+            <button class="btn btn-outline btn-block" id="exportBackupBtn">⬇️ DOWNLOAD FULL BACKUP (JSON)</button>
+            <button class="btn btn-outline btn-block" style="margin-top:0.5rem;" id="importBackupBtn">⬆️ RESTORE FROM BACKUP (JSON)</button>
+            <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;">
+            <input type="file" id="productImageInput" accept="image/*" style="display:none;">
+            <button class="btn btn-danger btn-block" style="margin-top:0.5rem;" id="resetAllBtn">🗑️ RESET ALL DATA</button>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM FLOATING PAGE FLIP NAVIGATION BAR -->
+<div class="bottom-nav-bar">
+    <button class="nav-tab-btn active" data-tab="sell">💊 <span>MEDICINES</span></button>
+    <button class="nav-tab-btn" data-tab="history">📅 <span>HISTORY</span></button>
+    <button class="nav-tab-btn" data-tab="settings">⚙️ <span>SETTINGS</span></button>
+</div>
+
+<!-- STICKY BOTTOM BAR -->
+<div class="sticky-summary" id="stickySummary">
+    <div class="sticky-inner">
+        <div>
+            <div class="lbl" id="stickyDateLbl">TOTAL</div>
+            <div class="val" id="stickyTotal">0.00</div>
+        </div>
+        <div>
+            <div class="lbl">AMT</div>
+            <div class="val" id="stickyCommission" style="color:#6ee7b7;">0.00</div>
+        </div>
+        <div class="commission" id="stickyPct">10%</div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<canvas id="exportCanvas" style="display:none;"></canvas>
+
+<script>
+(function(){
+    const DEFAULT_PRODUCTS = [
+        { id:'p1', brand:'KEENVITA', name:'KEENVITA OMEGA 3 2000MG 120 TAB', price:299.00, promo:false, img:'' },
+        { id:'p2', brand:'KEENVITA', name:'KEENVITA MOVFLEX JOINT CARE 120 TAB', price:299.00, promo:false, img:'' },
+        { id:'p3', brand:'KEENVITA', name:'KEENVITA MULTICOMPLETE', price:225.00, promo:false, img:'' },
+        { id:'p4', brand:'KEENVITA', name:'KEENVITA MAGNESIUM GLYCINATE 500MG 60S', price:189.00, promo:false, img:'' },
+        { id:'p5', brand:'KEENVITA', name:'KEENVITA VITAMIN D3 5000 IU 120 SOFTGELS', price:145.00, promo:false, img:'' },
+        { id:'p6', brand:'KEENVITA', name:'KEENVITA COQ10 200MG 60 CAPSULES', price:260.00, promo:false, img:'' },
+        
+        { id:'p7', brand:'PURITAN\'S PRIDE', name:'PURITAN\'S PRIDE HYDROLYZED COLLAGEN 1000MG 180 TABS', price:165.00, promo:false, img:'' },
+        { id:'p8', brand:'PURITAN\'S PRIDE', name:'PURITAN\'S PRIDE MELATONIN 3MG 120 TABLETS', price:75.00, promo:false, img:'' },
+        { id:'p9', brand:'PURITAN\'S PRIDE', name:'PURITAN\'S PRIDE BIOTIN 10000 MCG 100 SOFTGELS', price:110.00, promo:false, img:'' },
+        { id:'p10', brand:'PURITAN\'S PRIDE', name:'PURITAN\'S PRIDE L-CARNITINE 500MG 60 TABLETS', price:135.00, promo:false, img:'' },
+        { id:'p11', brand:'PURITAN\'S PRIDE', name:'PURITAN\'S PRIDE GLUCOSAMINE CHONDROITIN COMPLEX 90S', price:145.00, promo:false, img:'' },
+        { id:'p12', brand:'PURITAN\'S PRIDE', name:'PURITAN\'S PRIDE VITAMIN C 1000MG WITH ROSE HIPS 100S', price:95.00, promo:false, img:'' },
+
+        { id:'p13', brand:'WHITE HEALTH', name:'WHITE HEALTH MAGNESIUM GLYCINATE 400', price:189.00, promo:false, img:'' },
+        { id:'p14', brand:'WHITE HEALTH', name:'WHITE HEALTH MAGNESIUM GLYCINATE (SALE)', price:143.50, promo:true, img:'' },
+        { id:'p15', brand:'WHITE HEALTH', name:'WHITE HEALTH PROBIOTIC XTRA 50 BILLION', price:310.00, promo:false, img:'' },
+        { id:'p16', brand:'WHITE HEALTH', name:'WHITE HEALTH VITA C-1000 LIPOSOMAL', price:160.00, promo:false, img:'' },
+        { id:'p17', brand:'WHITE HEALTH', name:'WHITE HEALTH SLIM DETOX CAPS 30S', price:189.00, promo:false, img:'' },
+        { id:'p18', brand:'WHITE HEALTH', name:'WHITE HEALTH COQ10 100MG 60S', price:240.00, promo:false, img:'' },
+        { id:'p19', brand:'WHITE HEALTH', name:'WHITE HEALTH OMEGA 3 TRIPLE STRENGTH 90S', price:275.00, promo:false, img:'' },
+
+        { id:'p20', brand:'HEALTH AID', name:'HEALTH AID OSTEZOIN TAB 90S', price:145.00, promo:false, img:'' },
+        { id:'p21', brand:'HEALTH AID', name:'HEALTH AID MAGCITRA TABS 60S', price:95.00, promo:false, img:'' },
+        { id:'p22', brand:'HEALTH AID', name:'HEALTH AID VITAMIN D3 1000IU CAPS 30S', price:65.00, promo:false, img:'' },
+        { id:'p23', brand:'HEALTH AID', name:'HEALTH AID OMEGAZONE PLUS CAPS 30S', price:115.00, promo:false, img:'' },
+        { id:'p24', brand:'HEALTH AID', name:'HEALTH AID CARBOSLIM CAPS 60S', price:155.00, promo:false, img:'' },
+        { id:'p25', brand:'HEALTH AID', name:'HEALTH AID SIBERSLIM TABS 60S', price:160.00, promo:false, img:'' },
+        { id:'p26', brand:'HEALTH AID', name:'HEALTH AID CROMIUM TAB 60S', price:85.00, promo:false, img:'' },
+        { id:'p27', brand:'HEALTH AID', name:'HEALTH AID L ARGININE 500MG TAB 60S', price:135.00, promo:false, img:'' },
+        { id:'p28', brand:'HEALTH AID', name:'HEALTH AID MAGNESIUM BISGLYCINATE 375MG 60S', price:110.00, promo:false, img:'' },
+
+        { id:'p29', brand:'PAXAS / TAUROPAX', name:'TAUROPAX FORCE 60 CAPSULES', price:290.00, promo:false, img:'' },
+        { id:'p30', brand:'PAXAS / TAUROPAX', name:'PAXAS BELLY FAT 120 CAPS', price:210.00, promo:false, img:'' },
+        { id:'p31', brand:'PAXAS / TAUROPAX', name:'PAXAS SLIMMING TABS 20 EFFERVESCENT', price:95.00, promo:false, img:'' },
+        { id:'p32', brand:'PAXAS / TAUROPAX', name:'PAXAS SERENITY SHOTS 60ML', price:45.00, promo:false, img:'' }
+    ];
+
+    let products = [];
+    let salesByDate = {}; 
+    let activeDateKey = '';
+    let lastSent = null;
+    let globalCommission = 10;
+    let pinEnabled = true;
+    let pinCode = '1234';
+    let enteredPin = '';
+    let searchQuery = '';
+    let promoOnly = false;
+    let imgUploadTargetIdx = null;
+
+    let activeModalEntryId = null;
+    let activeModalProdId = null;
+    let modalBillDataUrl = '';
+
+    const STORAGE_KEY = 'vysakh_sales_data_v10';
+
+    const productGrid = document.getElementById('productGrid');
+    const dashboardTiles = document.getElementById('dashboardTiles');
+    const todayTableBody = document.getElementById('todayTableBody');
+    const todayTotalEl = document.getElementById('todayTotal');
+    const todayCommissionEl = document.getElementById('todayCommission');
+    const commissionPctBadge = document.getElementById('commissionPctBadge');
+    const activeDatePicker = document.getElementById('activeDatePicker');
+    const jumpTodayBtn = document.getElementById('jumpTodayBtn');
+    const salesCardTitle = document.getElementById('salesCardTitle');
+    const historyListEl = document.getElementById('historyList');
+    const lastSentBox = document.getElementById('lastSentBox');
+    const settingsListEl = document.getElementById('settingsList');
+    const toastEl = document.getElementById('toast');
+    const exportCanvas = document.getElementById('exportCanvas');
+    const promoCountEl = document.getElementById('promoCount');
+    const searchInput = document.getElementById('searchInput');
+    const promoFilterBtn = document.getElementById('promoFilterBtn');
+    const stickySummary = document.getElementById('stickySummary');
+    const stickyDateLbl = document.getElementById('stickyDateLbl');
+    const stickyTotal = document.getElementById('stickyTotal');
+    const stickyCommission = document.getElementById('stickyCommission');
+    const stickyPct = document.getElementById('stickyPct');
+    const globalCommissionInput = document.getElementById('globalCommission');
+    const importFileInput = document.getElementById('importFileInput');
+    const productImageInput = document.getElementById('productImageInput');
+    const pinOverlay = document.getElementById('pinOverlay');
+    const pinDots = document.getElementById('pinDots').querySelectorAll('.pin-dot');
+    const pinEnabledChk = document.getElementById('pinEnabledChk');
+    const pinCodeInput = document.getElementById('pinCodeInput');
+
+    const dashboardLocTabs = document.querySelectorAll('#dashboardLocBar .loc-tab');
+    const modalLocTabs = document.querySelectorAll('#modalLocBar .loc-tab');
+
+    const newProdBrandInput = document.getElementById('newProdBrandInput');
+    const newProdNameInput = document.getElementById('newProdNameInput');
+    const newProdPriceInput = document.getElementById('newProdPriceInput');
+    const newProdPromoChk = document.getElementById('newProdPromoChk');
+    const addNewProdSubmitBtn = document.getElementById('addNewProdSubmitBtn');
+
+    const quickModal = document.getElementById('quickModal');
+    const modalProdTitle = document.getElementById('modalProdTitle');
+    const modalActiveDateDisplay = document.getElementById('modalActiveDateDisplay');
+    const modalInvInput = document.getElementById('modalInvInput');
+    const modalQtyInput = document.getElementById('modalQtyInput');
+    const modalPriceInput = document.getElementById('modalPriceInput');
+    const modalRemarksInput = document.getElementById('modalRemarksInput');
+    const modalBillInput = document.getElementById('modalBillInput');
+    const billPreviewContainer = document.getElementById('billPreviewContainer');
+    const oldPriceRef = document.getElementById('oldPriceRef');
+    const saveModalBtn = document.getElementById('saveModalBtn');
+    const deleteModalItemBtn = document.getElementById('deleteModalItemBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // MULTI-DATE MODAL ELEMENTS
+    const rangeExportModal = document.getElementById('rangeExportModal');
+    const openRangeModalBtn = document.getElementById('openRangeModalBtn');
+    const closeRangeModalBtn = document.getElementById('closeRangeModalBtn');
+    const rangeSelect = document.getElementById('rangeSelect');
+    const customDateRow = document.getElementById('customDateRow');
+    const rangeStartDate = document.getElementById('rangeStartDate');
+    const rangeEndDate = document.getElementById('rangeEndDate');
+    const rangeExportCsvBtn = document.getElementById('rangeExportCsvBtn');
+    const rangeExportImgBtn = document.getElementById('rangeExportImgBtn');
+
+    function todayKey() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+    function firstOfMonthKey() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-01';
+    }
+    function currentShiftTime() {
+        const d = new Date();
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    function shiftDateKey(key, deltaDays) {
+        const [y,m,d] = key.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
+        dt.setDate(dt.getDate() + deltaDays);
+        return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+    }
+    function formatDateDisplay(key) {
+        if (!key) return '—';
+        const [y,m,d] = key.split('-');
+        return d + '/' + m + '/' + y;
+    }
+    function showToast(msg) {
+        toastEl.innerHTML = '';
+        const span = document.createElement('span');
+        span.textContent = msg;
+        toastEl.appendChild(span);
+        toastEl.classList.add('show');
+        clearTimeout(toastEl._t);
+        toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 2800);
+    }
+    function uid() {
+        return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    }
+    function escapeHtml(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    
+    function getInitials(name) {
+        const words = (name || '').trim().split(/\s+/);
+        if (words.length >= 2) {
+            return (words[0][0] + words[1][0]).toUpperCase();
+        } else if (words.length === 1 && words[0].length >= 2) {
+            return words[0].substring(0, 2).toUpperCase();
+        }
+        return 'P';
+    }
+
+    function getActiveDateEntries() {
+        if (!salesByDate[activeDateKey]) {
+            salesByDate[activeDateKey] = { entries: [], sent: false, updatedAt: Date.now() };
+        }
+        if (!Array.isArray(salesByDate[activeDateKey].entries)) {
+            salesByDate[activeDateKey].entries = [];
+        }
+        return salesByDate[activeDateKey].entries;
+    }
+
+    function saveData() {
+        const data = { products, salesByDate, lastSent, globalCommission, pinEnabled, pinCode };
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+        catch(e) { showToast('STORAGE FULL! TRY SMALLER IMAGES.'); }
+    }
+
+    function loadData() {
+        activeDateKey = todayKey();
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const d = JSON.parse(raw);
+                products = d.products && d.products.length ? d.products : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+                salesByDate = d.salesByDate || {};
+                lastSent = d.lastSent || null;
+                globalCommission = d.globalCommission ?? 10;
+                pinEnabled = d.pinEnabled !== undefined ? d.pinEnabled : true;
+                pinCode = d.pinCode || '1234';
+                return;
+            }
+        } catch(e) { console.warn(e); }
+
+        products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+        salesByDate = {};
+        lastSent = null;
+        globalCommission = 10;
+        pinEnabled = true;
+        pinCode = '1234';
+    }
+
+    function initPinLock() {
+        pinEnabledChk.checked = pinEnabled;
+        pinCodeInput.value = pinCode;
+        if (pinEnabled) lockApp();
+    }
+    function lockApp() {
+        enteredPin = '';
+        updatePinDots();
+        pinOverlay.classList.add('active');
+    }
+    function updatePinDots(isError) {
+        pinDots.forEach((dot, i) => {
+            dot.classList.toggle('filled', i < enteredPin.length && !isError);
+            dot.classList.toggle('error', !!isError);
+        });
+    }
+    document.querySelectorAll('.pin-key').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const k = btn.dataset.k;
+            if (k === 'clear') { enteredPin = ''; updatePinDots(); return; }
+            if (k === 'del') { enteredPin = enteredPin.slice(0, -1); updatePinDots(); return; }
+            if (enteredPin.length < 4) {
+                enteredPin += k;
+                updatePinDots();
+                if (enteredPin.length === 4) {
+                    if (enteredPin === pinCode) {
+                        setTimeout(() => pinOverlay.classList.remove('active'), 120);
+                    } else {
+                        updatePinDots(true);
+                        setTimeout(() => { enteredPin = ''; updatePinDots(); }, 380);
+                    }
+                }
+            }
+        });
+    });
+    document.getElementById('lockNowBtn').addEventListener('click', lockApp);
+    pinEnabledChk.addEventListener('change', () => {
+        pinEnabled = pinEnabledChk.checked;
+        saveData();
+        showToast(pinEnabled ? 'PIN LOCK ENABLED' : 'PIN LOCK DISABLED');
+    });
+    document.getElementById('savePinBtn').addEventListener('click', () => {
+        const val = pinCodeInput.value.trim();
+        if (!/^\d{4}$/.test(val)) {
+            showToast('PIN MUST BE 4 DIGITS');
+            return;
+        }
+        pinCode = val;
+        saveData();
+        showToast('PIN UPDATED TO ' + val);
+    });
+
+    // LOCATION SELECTION LOGIC
+    dashboardLocTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            dashboardLocTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        });
+    });
+    modalLocTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            modalLocTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        });
+    });
+
+    function getActiveDashboardLoc() {
+        const activeTab = document.querySelector('#dashboardLocBar .loc-tab.active');
+        return activeTab ? activeTab.dataset.loc : 'DUBAI MALL';
+    }
+
+    function openEditModal(entry) {
+        const prod = products.find(p => p.id === entry.prodId) || { name: entry.name, price: entry.price };
+        activeModalEntryId = entry.id;
+        activeModalProdId = entry.prodId;
+        
+        modalProdTitle.textContent = 'EDIT ENTRY: ' + entry.name;
+        modalActiveDateDisplay.textContent = formatDateDisplay(activeDateKey);
+        modalInvInput.value = entry.inv || '';
+        modalQtyInput.value = entry.qty || 1;
+        modalPriceInput.value = entry.price ?? prod.price;
+        modalRemarksInput.value = entry.remarks || '';
+        modalBillDataUrl = entry.billImg || '';
+        oldPriceRef.textContent = `(CATALOG: AED ${prod.price.toFixed(2)})`;
+        deleteModalItemBtn.style.display = 'inline-flex';
+
+        modalLocTabs.forEach(t => {
+            t.classList.remove('active');
+            if (t.dataset.loc === (entry.loc || 'DUBAI MALL')) t.classList.add('active');
+        });
+
+        billPreviewContainer.innerHTML = modalBillDataUrl ? '📎 BILL ATTACHED' : '';
+        modalBillInput.value = '';
+        quickModal.classList.add('active');
+    }
+
+    closeModalBtn.addEventListener('click', () => quickModal.classList.remove('active'));
+
+    modalBillInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const maxDim = 600;
+                let w = img.width, h = img.height;
+                if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+                else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                modalBillDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                billPreviewContainer.innerHTML = '📎 BILL ATTACHED SUCCESSFULLY!';
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    saveModalBtn.addEventListener('click', () => {
+        if (!activeModalEntryId) return;
+        const qty = parseInt(modalQtyInput.value, 10) || 1;
+        const price = parseFloat(modalPriceInput.value) || 0;
+        const inv = (modalInvInput.value.trim() || 'INV-001').toUpperCase();
+        const remarks = modalRemarksInput.value.trim().toUpperCase();
+        const activeModLoc = document.querySelector('#modalLocBar .loc-tab.active').dataset.loc;
+
+        const dateObj = salesByDate[activeDateKey] || { entries: [], sent: false };
+        dateObj.updatedAt = Date.now();
+        salesByDate[activeDateKey] = dateObj;
+        const entries = dateObj.entries;
+
+        const entry = entries.find(e => e.id === activeModalEntryId);
+        if (entry) {
+            entry.loc = activeModLoc;
+            entry.inv = inv;
+            entry.qty = qty;
+            entry.price = price;
+            entry.remarks = remarks;
+            entry.billImg = modalBillDataUrl;
+        }
+
+        saveData();
+        quickModal.classList.remove('active');
+        renderAll();
+        showToast('ENTRY UPDATED');
+    });
+
+    deleteModalItemBtn.addEventListener('click', () => {
+        if (!activeModalEntryId) return;
+        const entries = getActiveDateEntries();
+        const idx = entries.findIndex(e => e.id === activeModalEntryId);
+        if (idx !== -1) {
+            entries.splice(idx, 1);
+            if(salesByDate[activeDateKey]) salesByDate[activeDateKey].updatedAt = Date.now();
+            saveData();
+            quickModal.classList.remove('active');
+            renderAll();
+            showToast('ENTRY REMOVED');
+        }
+    });
+
+    // MULTI-DATE MODAL LOGIC
+    openRangeModalBtn.addEventListener('click', () => {
+        rangeSelect.value = 'last_sent';
+        customDateRow.style.display = 'none';
+        rangeExportModal.classList.add('active');
+    });
+    closeRangeModalBtn.addEventListener('click', () => rangeExportModal.classList.remove('active'));
+    
+    rangeSelect.addEventListener('change', () => {
+        customDateRow.style.display = rangeSelect.value === 'custom' ? 'grid' : 'none';
+    });
+
+    function getSelectedDateRange() {
+        let start = '';
+        let end = todayKey();
+        if (rangeSelect.value === 'last_sent') {
+            start = lastSent ? lastSent.date : '2000-01-01';
+        } else if (rangeSelect.value === 'this_month') {
+            start = firstOfMonthKey();
+        } else {
+            start = rangeStartDate.value;
+            end = rangeEndDate.value;
+            if (!start || !end) {
+                showToast('PLEASE SELECT BOTH DATES');
+                return null;
+            }
+            if (start > end) {
+                showToast('START DATE MUST BE BEFORE END DATE');
+                return null;
+            }
+        }
+        return { start, end };
+    }
+
+    function getAggregatedEntries(start, end) {
+        let allEntries = [];
+        Object.keys(salesByDate).forEach(dKey => {
+            if (dKey >= start && dKey <= end && salesByDate[dKey].entries) {
+                const dateEntries = salesByDate[dKey].entries.map(e => ({ ...e, activeDate: dKey }));
+                allEntries = allEntries.concat(dateEntries);
+            }
+        });
+        
+        // Sort Date chronologically
+        allEntries.sort((a, b) => {
+            if (a.activeDate !== b.activeDate) return a.activeDate.localeCompare(b.activeDate);
+            return (a.time || '').localeCompare(b.time || '');
+        });
+        return allEntries;
+    }
+
+    rangeExportCsvBtn.addEventListener('click', () => {
+        const range = getSelectedDateRange();
+        if (!range) return;
+        const entries = getAggregatedEntries(range.start, range.end);
+        if (entries.length === 0) {
+            showToast('NO SALES FOUND IN THIS RANGE');
+            return;
+        }
+
+        const groupedByLoc = {};
+        entries.forEach(e => {
+            const loc = (e.loc || 'DUBAI MALL').toUpperCase();
+            if (!groupedByLoc[loc]) groupedByLoc[loc] = [];
+            groupedByLoc[loc].push(e);
+        });
+
+        let csv = "data:text/csv;charset=utf-8,LOCATION,DATE,TIME,INVOICE,BRAND GROUP,PRODUCT DESCRIPTION,CATEGORY,QUANTITY,UNIT PRICE (AED),TOTAL AMOUNT (AED),REMARKS\r\n";
+        
+        for (const [loc, items] of Object.entries(groupedByLoc)) {
+            items.forEach(e => {
+                const cat = e.promo ? 'PROMO' : 'REGULAR';
+                const lineTot = e.price * e.qty;
+                csv += `"${loc}",${formatDateDisplay(e.activeDate)},${e.time || ''},"${e.inv}","${e.brand}","${e.name.replace(/"/g,'""')}",${cat},${e.qty},${e.price.toFixed(2)},${lineTot.toFixed(2)},"${(e.remarks || '').replace(/"/g,'""')}"\r\n`;
+            });
+        }
+        
+        const link = document.createElement("a");
+        link.setAttribute("href", encodeURI(csv));
+        link.setAttribute("download", `VYSAKH-SALES-REPORT-${range.start}-TO-${range.end}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('MULTI-DATE CSV DOWNLOADED');
+        rangeExportModal.classList.remove('active');
+    });
+
+    rangeExportImgBtn.addEventListener('click', () => {
+        const range = getSelectedDateRange();
+        if (!range) return;
+        const entries = getAggregatedEntries(range.start, range.end);
+        if (entries.length === 0) {
+            showToast('NO SALES FOUND IN THIS RANGE');
+            return;
+        }
+
+        const groupedByLoc = {};
+        let grandTotalAmt = 0;
+        let grandTotalComm = 0;
+
+        entries.forEach(e => {
+            const loc = (e.loc || 'DUBAI MALL').toUpperCase();
+            if (!groupedByLoc[loc]) groupedByLoc[loc] = [];
+            groupedByLoc[loc].push(e);
+            
+            const lineTot = e.price * e.qty;
+            grandTotalAmt += lineTot;
+            if (!e.promo) grandTotalComm += lineTot * globalCommission / 100;
+        });
+
+        const locKeys = Object.keys(groupedByLoc);
+        exportCanvas.width = 720;
+        exportCanvas.height = 200 + locKeys.length * 40 + entries.length * 26;
+        const ctx = exportCanvas.getContext('2d');
+        ctx.fillStyle = '#f2f5fa'; ctx.fillRect(0, 0, 720, exportCanvas.height);
+
+        ctx.fillStyle = '#0a1931'; ctx.fillRect(20, 20, 680, 75);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 22px system-ui';
+        ctx.fillText('VYSAKH CONSOLIDATED SALES', 40, 52);
+        ctx.font = 'bold 12px system-ui';
+        ctx.fillText(`FROM ${formatDateDisplay(range.start)} TO ${formatDateDisplay(range.end)}`, 40, 75);
+
+        let y = 120;
+        
+        for (const [loc, items] of Object.entries(groupedByLoc)) {
+            ctx.fillStyle = '#0a1931'; ctx.font = 'bold 16px system-ui';
+            ctx.textAlign = 'left';
+            ctx.fillText(`LOC: ${loc}`, 35, y);
+            y += 20;
+
+            ctx.fillStyle = '#43648b'; ctx.font = 'bold 11px system-ui';
+            ctx.fillText(`DATE-TIME`, 35, y);
+            ctx.fillText(`DESCRIPTION`, 140, y);
+            ctx.textAlign = 'right';
+            ctx.fillText(`QTY`, 580, y);
+            ctx.fillText(`AMOUNT`, 680, y);
+            ctx.textAlign = 'left';
+            y += 20;
+
+            items.forEach(ent => {
+                ctx.fillStyle = '#1d3149'; ctx.font = 'bold 12px system-ui';
+                ctx.fillText(`${formatDateDisplay(ent.activeDate)} ${ent.time}`, 35, y);
+                ctx.fillText(`[${ent.brand}] ${ent.name}`.substring(0, 55), 140, y);
+                ctx.textAlign = 'right';
+                ctx.fillText(`${ent.qty}`, 580, y);
+                ctx.fillText(`AED ${(ent.price * ent.qty).toFixed(2)}`, 680, y);
+                ctx.textAlign = 'left';
+                y += 24;
+            });
+            y += 10;
+        }
+
+        const footerY = y + 10;
+        ctx.fillStyle = '#0a1931'; ctx.fillRect(20, footerY, 680, 65);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 16px system-ui';
+        ctx.fillText(`GRAND TOTAL: AED ${grandTotalAmt.toFixed(2)}`, 40, footerY + 38);
+        ctx.textAlign = 'right'; ctx.fillStyle = '#6ee7b7';
+        ctx.fillText(`TOTAL AMT (${globalCommission}%): AED ${grandTotalComm.toFixed(2)}`, 680, footerY + 38);
+
+        const link = document.createElement('a');
+        link.download = `VYSAKH-REPORT-${range.start}-TO-${range.end}.png`;
+        link.href = exportCanvas.toDataURL('image/png');
+        link.click();
+        showToast('MULTI-DATE IMAGE DOWNLOADED');
+        rangeExportModal.classList.remove('active');
+    });
+
+    function renderAll() {
+        renderDateHeader();
+        renderDashboardTiles();
+        renderProducts();
+        renderTodayTable();
+        renderSummary();
+        renderHistory();
+        renderLastSent();
+        renderSettings();
+        renderPromoCount();
+        globalCommissionInput.value = globalCommission;
+    }
+
+    function renderDateHeader() {
+        activeDatePicker.value = activeDateKey;
+        const isToday = activeDateKey === todayKey();
+        jumpTodayBtn.classList.toggle('show', !isToday);
+        salesCardTitle.textContent = isToday ? "SALES FOR TODAY" : "SALES FOR " + formatDateDisplay(activeDateKey);
+        stickyDateLbl.textContent = isToday ? "TOTAL (TODAY)" : "TOTAL (" + formatDateDisplay(activeDateKey) + ")";
+    }
+
+    function renderPromoCount() {
+        const promos = products.filter(p => p.promo).length;
+        promoCountEl.textContent = promos + ' PROMO ITEM' + (promos !== 1 ? 'S' : '');
+    }
+
+    function renderDashboardTiles() {
+        if (!products.length) { dashboardTiles.innerHTML = ''; return; }
+        const tilesList = products.slice(0, 6);
+        dashboardTiles.innerHTML = tilesList.map(p => {
+            const media = p.img ? `<img src="${p.img}" alt="">` : `<span class="dash-tile-placeholder-text">${getInitials(p.name)}</span>`;
+            return `<div class="dash-tile" data-id="${p.id}" title="${escapeHtml(p.name)}">
+                <div class="dash-tile-img">${media}</div>
+                <div class="dash-tile-name">${escapeHtml(p.name)}</div>
+            </div>`;
+        }).join('');
+
+        dashboardTiles.querySelectorAll('.dash-tile').forEach(tile => {
+            tile.addEventListener('click', (e) => {
+                quickAddProduct(tile.dataset.id, e);
+            });
+        });
+    }
+
+    function renderProducts() {
+        let list = products;
+        if (searchQuery.trim()) {
+            const q = searchQuery.trim().toLowerCase();
+            list = list.filter(p => p.name.toLowerCase().includes(q) || (p.brand && p.brand.toLowerCase().includes(q)));
+        }
+        if (promoOnly) list = list.filter(p => p.promo);
+        if (list.length === 0) {
+            productGrid.innerHTML = '<div class="empty-msg" style="grid-column:1/-1;">NO MEDICINES MATCH.</div>';
+            return;
+        }
+        const entries = getActiveDateEntries();
+        productGrid.innerHTML = list.map(p => {
+            const badge = p.promo ? '<span class="pbadge">PROMO</span>' : '';
+            const totalQty = entries.filter(e => e.prodId === p.id).reduce((sum, e) => sum + e.qty, 0);
+            const qtyBadge = totalQty > 0 ? `<span class="qty-tap-badge">×${totalQty}</span>` : '';
+            const media = p.img ? `<img src="${p.img}" alt="${escapeHtml(p.name)}">` : `<span class="pimg-placeholder-text">${getInitials(p.name)}</span>`;
+            return `<div class="product-tile${p.promo ? ' promo' : ''}" data-id="${p.id}">
+                ${qtyBadge}
+                ${badge}
+                <div class="pimg-box">${media}</div>
+                <div class="pname">${escapeHtml(p.name)}</div>
+                <div class="pprice">AED ${p.price.toFixed(2)}</div>
+            </div>`;
+        }).join('');
+
+        productGrid.querySelectorAll('.product-tile').forEach(el => {
+            el.addEventListener('click', (e) => {
+                quickAddProduct(el.dataset.id, e);
+            });
+        });
+    }
+
+    // INSTANT ONE-TAP ADDITION FOR TODAY WITH LOCATION LOGGING
+    function quickAddProduct(prodId, event) {
+        const prod = products.find(p => p.id === prodId);
+        if (!prod) return;
+
+        const target = event.currentTarget;
+        target.classList.add('pulse-anim');
+        setTimeout(() => target.classList.remove('pulse-anim'), 350);
+
+        const rect = target.getBoundingClientRect();
+        const plus = document.createElement('div');
+        plus.className = 'floating-plus';
+        plus.textContent = '+1';
+        plus.style.left = (event.clientX || (rect.left + rect.width / 2)) + 'px';
+        plus.style.top = (event.clientY || (rect.top + rect.height / 2)) + 'px';
+        document.body.appendChild(plus);
+        setTimeout(() => plus.remove(), 600);
+
+        const activeLoc = getActiveDashboardLoc();
+        const dateObj = salesByDate[activeDateKey] || { entries: [], sent: false };
+        dateObj.updatedAt = Date.now();
+        salesByDate[activeDateKey] = dateObj;
+        const entries = dateObj.entries;
+
+        const existing = entries.find(e => e.prodId === prod.id && !e.remarks && e.price === prod.price && e.loc === activeLoc);
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            entries.push({
+                id: uid(),
+                prodId: prod.id,
+                brand: (prod.brand || 'OTHER').toUpperCase(),
+                name: prod.name.toUpperCase(),
+                promo: prod.promo,
+                time: currentShiftTime(),
+                loc: activeLoc,
+                inv: 'INV-' + Math.floor(1000 + Math.random() * 9000),
+                qty: 1,
+                price: prod.price,
+                remarks: '',
+                billImg: ''
+            });
+        }
+
+        saveData();
+        renderProducts();
+        renderTodayTable();
+        renderSummary();
+        renderHistory();
+        showToast('+1 ' + prod.name.slice(0, 20));
+    }
+
+    function renderTodayTable() {
+        const entries = getActiveDateEntries();
+        if (entries.length === 0) {
+            todayTableBody.innerHTML = `<tr><td colspan="7" class="empty-msg">NO ENTRIES FOR ${formatDateDisplay(activeDateKey)} — TAP A MEDICINE ABOVE.</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        entries.forEach((ent) => {
+            const lineTotal = (ent.price * ent.qty).toFixed(2);
+            const promoTag = ent.promo ? ' <span style="color:#20a766;font-weight:800;font-size:0.6rem;">[PROMO]</span>' : '';
+            const billIcon = ent.billImg ? ' 📎' : '';
+            const brandHeader = ent.brand ? `<div style="font-size:0.58rem;color:var(--blue);font-weight:800;">[${escapeHtml(ent.brand)}]</div>` : '';
+            html += `<tr class="table-row-item" data-id="${ent.id}" style="cursor:pointer;" title="TAP TO EDIT ENTRY">
+                <td>${formatDateDisplay(activeDateKey)}<br><span style="font-size:0.6rem;color:var(--muted);font-weight:800;">${ent.time || 'SHIFT 1'} • ${ent.loc || 'DUBAI MALL'}</span></td>
+                <td><strong>${escapeHtml(ent.inv || '—')}</strong></td>
+                <td>${brandHeader}${escapeHtml(ent.name)}${promoTag}${billIcon}</td>
+                <td><strong>×${ent.qty}</strong></td>
+                <td>AED ${ent.price.toFixed(2)}</td>
+                <td><strong style="color:var(--blue);">AED ${lineTotal}</strong></td>
+                <td style="font-size:0.68rem;color:#43648b;">${escapeHtml(ent.remarks || '—')}</td>
+            </tr>`;
+        });
+        todayTableBody.innerHTML = html;
+
+        todayTableBody.querySelectorAll('tr[data-id]').forEach(row => {
+            row.addEventListener('click', () => {
+                const entryId = row.dataset.id;
+                const entry = entries.find(e => e.id === entryId);
+                if (entry) openEditModal(entry);
+            });
+        });
+    }
+
+    function calcDateTotals(dateKey) {
+        const obj = salesByDate[dateKey];
+        if (!obj || !Array.isArray(obj.entries)) return { total: 0, commission: 0, count: 0 };
+        let total = 0, commission = 0, count = 0;
+        obj.entries.forEach(ent => {
+            const lineTotal = ent.price * ent.qty;
+            total += lineTotal;
+            count += ent.qty;
+            if (!ent.promo) commission += lineTotal * globalCommission / 100;
+        });
+        return { total: +total.toFixed(2), commission: +commission.toFixed(2), count };
+    }
+
+    function renderSummary() {
+        const { total, commission, count } = calcDateTotals(activeDateKey);
+        todayTotalEl.textContent = total.toFixed(2);
+        todayCommissionEl.textContent = commission.toFixed(2);
+        commissionPctBadge.textContent = globalCommission + '%';
+        stickyTotal.textContent = total.toFixed(2);
+        stickyCommission.textContent = commission.toFixed(2);
+        stickyPct.textContent = globalCommission + '%';
+        const onSell = document.getElementById('panel-sell').classList.contains('active');
+        stickySummary.classList.toggle('show', count > 0 && onSell);
+    }
+
+    function renderHistory() {
+        const validDates = Object.keys(salesByDate)
+            .filter(d => calcDateTotals(d).count > 0)
+            .sort((a, b) => {
+                const timeA = salesByDate[a].updatedAt || new Date(a).getTime();
+                const timeB = salesByDate[b].updatedAt || new Date(b).getTime();
+                if (timeB !== timeA) return timeB - timeA;
+                return b.localeCompare(a);
+            });
+
+        if (validDates.length === 0) {
+            historyListEl.innerHTML = '<div class="empty-msg">NO SAVED HISTORY YET.</div>';
+            return;
+        }
+
+        historyListEl.innerHTML = validDates.map((dKey) => {
+            const obj = salesByDate[dKey];
+            const { total, commission, count } = calcDateTotals(dKey);
+            const sentMark = obj.sent ? ' ✅' : '';
+            const detailRows = obj.entries.map(ent => `
+                <div class="h-line">
+                    <span><strong>[${escapeHtml(ent.loc || 'DUBAI MALL')}]</strong> ${escapeHtml(ent.name)} ×${ent.qty}</span>
+                    <span style="color:var(--blue);font-weight:900;">AED ${(ent.price * ent.qty).toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            return `<div class="history-item" onclick="document.getElementById('hdet-${dKey}').classList.toggle('open')">
+                <span class="history-date">${formatDateDisplay(dKey)}${sentMark}</span>
+                <span>${count} ITEMS</span>
+                <span class="history-total">AED ${total.toFixed(2)}</span>
+                <span class="history-comm">AMT ${commission.toFixed(2)}</span>
+            </div>
+            <div class="history-detail" id="hdet-${dKey}">
+                ${detailRows}
+                <div class="history-actions">
+                    <button class="btn btn-sm btn-primary" onclick="activeDateKey='${dKey}';renderAll();document.querySelector('[data-tab=sell]').click();" style="flex:1;">✏️ EDIT DATE</button>
+                    <button class="btn btn-sm btn-danger" onclick="if(confirm('DELETE ${dKey}?')){delete salesByDate['${dKey}'];saveData();renderAll();}">🗑️ DELETE</button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function renderLastSent() {
+        if (!lastSent) { lastSentBox.innerHTML = '<div>NO DETAILS SENT YET.</div>'; return; }
+        lastSentBox.innerHTML = `
+            <div><strong>LAST SENT DATE:</strong> ${formatDateDisplay(lastSent.date)}</div>
+            <div><strong>TOTAL SALES:</strong> AED ${lastSent.total.toFixed(2)}</div>
+            <div><strong>AMT (${lastSent.commissionPct ?? globalCommission}%):</strong> AED ${lastSent.commission.toFixed(2)}</div>
+        `;
+    }
+
+    function renderSettings() {
+        if (!products.length) { settingsListEl.innerHTML = '<div class="empty-msg">NO MEDICINES ADDED YET.</div>'; return; }
+        settingsListEl.innerHTML = products.map((p, idx) => {
+            const thumb = p.img ? `<img src="${p.img}" alt="">` : `<span style="font-weight:900;">${getInitials(p.name)}</span>`;
+            return `<div class="setting-row" data-idx="${idx}">
+                <button type="button" class="setting-img-btn" title="UPLOAD PHOTO">${thumb}<span class="edit-lbl">EDIT</span></button>
+                <input type="text" class="inp-name" value="${escapeHtml(p.name)}" placeholder="MEDICINE NAME">
+                <input type="number" class="inp-price" value="${p.price}" step="0.5" min="0" placeholder="PRICE">
+                <label class="chk-label"><input type="checkbox" class="inp-promo" ${p.promo ? 'checked' : ''}> PROMO</label>
+                <button class="btn btn-sm btn-danger del-prod-btn" title="DELETE">✕</button>
+            </div>`;
+        }).join('');
+
+        settingsListEl.querySelectorAll('.setting-row').forEach(row => {
+            const idx = parseInt(row.dataset.idx, 10);
+            const imgBtn = row.querySelector('.setting-img-btn');
+            const nameInp = row.querySelector('.inp-name');
+            const priceInp = row.querySelector('.inp-price');
+            const promoChk = row.querySelector('.inp-promo');
+            const delBtn = row.querySelector('.del-prod-btn');
+
+            imgBtn.addEventListener('click', () => { imgUploadTargetIdx = idx; productImageInput.value = ''; productImageInput.click(); });
+            nameInp.addEventListener('change', () => { products[idx].name = (nameInp.value.trim() || 'MEDICINE').toUpperCase(); saveData(); renderAll(); });
+            priceInp.addEventListener('change', () => { products[idx].price = Math.max(0, parseFloat(priceInp.value) || 0); saveData(); renderAll(); });
+            promoChk.addEventListener('change', () => { products[idx].promo = promoChk.checked; saveData(); renderAll(); });
+            delBtn.addEventListener('click', () => {
+                if (confirm('DELETE "' + products[idx].name + '"?')) {
+                    products.splice(idx, 1);
+                    saveData();
+                    renderAll();
+                }
+            });
+        });
+    }
+
+    document.getElementById('addCustomEntryBtn').addEventListener('click', () => {
+        const name = prompt('ENTER CUSTOM TEMPORARY ITEM NAME:');
+        if (!name || !name.trim()) return;
+        const price = parseFloat(prompt('ENTER PRICE IN AED:', '100')) || 0;
+        
+        const dateObj = salesByDate[activeDateKey] || { entries: [], sent: false };
+        dateObj.updatedAt = Date.now();
+        salesByDate[activeDateKey] = dateObj;
+        
+        dateObj.entries.push({
+            id: uid(),
+            prodId: uid(),
+            brand: 'CUSTOM',
+            name: name.trim().toUpperCase(),
+            promo: false,
+            time: currentShiftTime(),
+            loc: getActiveDashboardLoc(),
+            inv: 'INV-' + Math.floor(1000 + Math.random() * 9000),
+            qty: 1,
+            price: price,
+            remarks: 'MANUAL ENTRY',
+            billImg: ''
+        });
+
+        saveData();
+        renderAll();
+        showToast('CUSTOM ITEM ADDED');
+    });
+
+    addNewProdSubmitBtn.addEventListener('click', () => {
+        const brand = (newProdBrandInput.value.trim() || 'GENERAL').toUpperCase();
+        const name = newProdNameInput.value.trim().toUpperCase();
+        const price = parseFloat(newProdPriceInput.value);
+        const promo = newProdPromoChk.checked;
+
+        if (!name) {
+            showToast('PLEASE ENTER MEDICINE NAME');
+            newProdNameInput.focus();
+            return;
+        }
+        if (isNaN(price) || price < 0) {
+            showToast('PLEASE ENTER VALID PRICE');
+            newProdPriceInput.focus();
+            return;
+        }
+
+        const newProduct = {
+            id: uid(),
+            brand,
+            name,
+            price,
+            promo,
+            img: ''
+        };
+
+        products.push(newProduct);
+        saveData();
+        renderAll();
+
+        newProdBrandInput.value = '';
+        newProdNameInput.value = '';
+        newProdPriceInput.value = '';
+        newProdPromoChk.checked = false;
+        showToast('SUCCESSFULLY ADDED ' + name);
+    });
+
+    productImageInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file || imgUploadTargetIdx === null) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 200; canvas.height = 200;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 200, 200);
+                const minSide = Math.min(img.width, img.height);
+                ctx.drawImage(img, (img.width - minSide)/2, (img.height - minSide)/2, minSide, minSide, 0, 0, 200, 200);
+                products[imgUploadTargetIdx].img = canvas.toDataURL('image/jpeg', 0.78);
+                saveData(); renderAll();
+                showToast('MEDICINE PHOTO UPDATED');
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function exportCsv() {
+        const entries = getActiveDateEntries();
+        if (entries.length === 0) { showToast('NO ENTRIES TO EXPORT AS CSV'); return; }
+
+        const groupedByLoc = {};
+        entries.forEach(e => {
+            const loc = (e.loc || 'DUBAI MALL').toUpperCase();
+            if (!groupedByLoc[loc]) groupedByLoc[loc] = [];
+            groupedByLoc[loc].push(e);
+        });
+
+        let csv = "data:text/csv;charset=utf-8,LOCATION,DATE,TIME,INVOICE,BRAND GROUP,PRODUCT DESCRIPTION,CATEGORY,QUANTITY,UNIT PRICE (AED),TOTAL AMOUNT (AED),REMARKS\r\n";
+        
+        for (const [loc, items] of Object.entries(groupedByLoc)) {
+            items.forEach(e => {
+                const cat = e.promo ? 'PROMO' : 'REGULAR';
+                const lineTot = e.price * e.qty;
+                csv += `"${loc}",${formatDateDisplay(activeDateKey)},${e.time || ''},"${e.inv}","${e.brand}","${e.name.replace(/"/g,'""')}",${cat},${e.qty},${e.price.toFixed(2)},${lineTot.toFixed(2)},"${(e.remarks || '').replace(/"/g,'""')}"\r\n`;
+            });
+        }
+
+        const link = document.createElement("a");
+        link.setAttribute("href", encodeURI(csv));
+        link.setAttribute("download", `VYSAKH-SALES-${activeDateKey}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('CSV DOWNLOADED');
+    }
+
+    function exportTodayImage() {
+        const entries = getActiveDateEntries();
+        if (entries.length === 0) { showToast('NO SALES TO EXPORT'); return; }
+        const { total, commission } = calcDateTotals(activeDateKey);
+
+        const groupedByLoc = {};
+        entries.forEach(e => {
+            const loc = (e.loc || 'DUBAI MALL').toUpperCase();
+            if (!groupedByLoc[loc]) groupedByLoc[loc] = [];
+            groupedByLoc[loc].push(e);
+        });
+
+        const locKeys = Object.keys(groupedByLoc);
+        exportCanvas.width = 720;
+        exportCanvas.height = 180 + locKeys.length * 40 + entries.length * 26;
+        const ctx = exportCanvas.getContext('2d');
+        ctx.fillStyle = '#f2f5fa'; ctx.fillRect(0, 0, 720, exportCanvas.height);
+
+        ctx.fillStyle = '#0a1931'; ctx.fillRect(20, 20, 680, 75);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 22px system-ui';
+        ctx.fillText('VYSAKH SALES SUMMARY', 40, 52);
+        ctx.font = 'bold 12px system-ui';
+        ctx.textAlign = 'right'; ctx.fillText(formatDateDisplay(activeDateKey), 680, 52);
+
+        let y = 120;
+        
+        for (const [loc, items] of Object.entries(groupedByLoc)) {
+            ctx.fillStyle = '#0a1931'; ctx.font = 'bold 16px system-ui';
+            ctx.textAlign = 'left';
+            ctx.fillText(`LOC: ${loc}`, 35, y);
+            y += 20;
+
+            ctx.fillStyle = '#43648b'; ctx.font = 'bold 11px system-ui';
+            ctx.fillText(`DATE-TIME`, 35, y);
+            ctx.fillText(`DESCRIPTION`, 140, y);
+            ctx.textAlign = 'right';
+            ctx.fillText(`QTY`, 580, y);
+            ctx.fillText(`AMOUNT`, 680, y);
+            ctx.textAlign = 'left';
+            y += 20;
+
+            items.forEach(ent => {
+                ctx.fillStyle = '#1d3149'; ctx.font = 'bold 12px system-ui';
+                ctx.fillText(`${formatDateDisplay(activeDateKey)} ${ent.time}`, 35, y);
+                ctx.fillText(`[${ent.brand}] ${ent.name}`.substring(0, 55), 140, y);
+                ctx.textAlign = 'right';
+                ctx.fillText(`${ent.qty}`, 580, y);
+                ctx.fillText(`AED ${(ent.price * ent.qty).toFixed(2)}`, 680, y);
+                ctx.textAlign = 'left';
+                y += 24;
+            });
+            y += 10;
+        }
+
+        const footerY = y + 10;
+        ctx.fillStyle = '#0a1931'; ctx.fillRect(20, footerY, 680, 65);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 16px system-ui';
+        ctx.fillText(`GRAND TOTAL: AED ${total.toFixed(2)}`, 40, footerY + 38);
+        ctx.textAlign = 'right'; ctx.fillStyle = '#6ee7b7';
+        ctx.fillText(`TOTAL AMT (${globalCommission}%): AED ${commission.toFixed(2)}`, 680, footerY + 38);
+
+        const link = document.createElement('a');
+        link.download = `VYSAKH-SALES-${activeDateKey}.png`;
+        link.href = exportCanvas.toDataURL('image/png');
+        link.click();
+        showToast('SUMMARY IMAGE DOWNLOADED');
+    }
+
+    activeDatePicker.addEventListener('change', () => { if (activeDatePicker.value) { activeDateKey = activeDatePicker.value; renderAll(); } });
+    document.getElementById('prevDayBtn').addEventListener('click', () => { activeDateKey = shiftDateKey(activeDateKey, -1); renderAll(); });
+    document.getElementById('nextDayBtn').addEventListener('click', () => { activeDateKey = shiftDateKey(activeDateKey, 1); renderAll(); });
+    jumpTodayBtn.addEventListener('click', () => { activeDateKey = todayKey(); renderAll(); });
+
+    document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+            renderSummary();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+
+    searchInput.addEventListener('input', () => { searchQuery = searchInput.value; renderProducts(); });
+    promoFilterBtn.addEventListener('click', () => { promoOnly = !promoOnly; promoFilterBtn.classList.toggle('on', promoOnly); renderProducts(); });
+
+    document.getElementById('clearDayBtn').addEventListener('click', () => {
+        if (confirm('CLEAR ALL ENTRIES FOR ' + formatDateDisplay(activeDateKey) + '?')) {
+            salesByDate[activeDateKey] = { entries: [], sent: false, updatedAt: Date.now() };
+            saveData(); renderAll(); showToast('DATE CLEARED');
+        }
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', exportTodayImage);
+    document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+
+    document.getElementById('markSentBtn').addEventListener('click', () => {
+        const entries = getActiveDateEntries();
+        if (entries.length === 0) { showToast('NO SALES ON THIS DATE'); return; }
+        const { total, commission } = calcDateTotals(activeDateKey);
+        lastSent = { date: activeDateKey, total, commission, commissionPct: globalCommission };
+        salesByDate[activeDateKey].sent = true;
+        salesByDate[activeDateKey].updatedAt = Date.now();
+        saveData(); renderHistory(); renderLastSent();
+        showToast('MARKED AS SENT TO DOCTOR');
+    });
+
+    globalCommissionInput.addEventListener('change', () => {
+        globalCommission = Math.min(100, Math.max(0, parseFloat(globalCommissionInput.value) || 0));
+        globalCommissionInput.value = globalCommission;
+        saveData(); renderSummary(); renderHistory(); renderLastSent();
+    });
+
+    document.getElementById('exportBackupBtn').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify({ products, salesByDate, lastSent, globalCommission, pinEnabled, pinCode }, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = `VYSAKH-SALES-BACKUP-${activeDateKey}.json`; a.click();
+        URL.revokeObjectURL(url); showToast('BACKUP DOWNLOADED');
+    });
+
+    document.getElementById('importBackupBtn').addEventListener('click', () => { importFileInput.value = ''; importFileInput.click(); });
+    importFileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const d = JSON.parse(ev.target.result);
+                products = d.products || DEFAULT_PRODUCTS;
+                salesByDate = d.salesByDate || {};
+                lastSent = d.lastSent || null;
+                globalCommission = d.globalCommission ?? 10;
+                saveData(); renderAll(); showToast('BACKUP RESTORED SUCCESSFULLY');
+            } catch(err) { showToast('INVALID BACKUP FILE'); }
+        };
+        reader.readAsText(file);
+    });
+
+    document.getElementById('resetAllBtn').addEventListener('click', () => {
+        if (confirm('DELETE ALL DATA AND RESET?')) {
+            localStorage.removeItem(STORAGE_KEY);
+            loadData(); renderAll(); showToast('RESET COMPLETE');
+        }
+    });
+
+    loadData();
+    initPinLock();
+    renderAll();
+})();
+</script>
+</body>
+</html>
